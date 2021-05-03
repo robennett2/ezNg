@@ -47,7 +47,6 @@ export class DropTargetDirective {
   private removeAllAppliedClassesFromElement() {
     const appliedStyles = [...this._appliedStyles]; // Copy the array so we aren't iterating and modifying it
     for (const style of appliedStyles) {
-      console.log(this._appliedStyles, style);
       this.removeClassFromElement(style);
     }
   }
