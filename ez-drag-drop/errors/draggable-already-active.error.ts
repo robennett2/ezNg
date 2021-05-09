@@ -1,1 +1,2 @@
-export const DraggableAlreadyActiveError = () => new Error("A draggable is already active.");
+export const DraggableAlreadyActiveError = () =>
+  new Error('A draggable is already active.');

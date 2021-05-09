@@ -4,39 +4,63 @@ import { DraggingService } from '../services/dragging.service';
 import { DraggableDirective } from './draggable.directive';
 
 describe('DraggableDirective', () => {
-  let elementRefSpy : jasmine.SpyObj<ElementRef>;
-  let renderer2Spy : jasmine.SpyObj<Renderer2>;
-  let draggingServiceSpy : jasmine.SpyObj<DraggingService>;
-  let dragEventSpy : DragEvent;
+  let elementRefSpy: jasmine.SpyObj<ElementRef>;
+  let renderer2Spy: jasmine.SpyObj<Renderer2>;
+  let draggingServiceSpy: jasmine.SpyObj<DraggingService>;
+  let dragEventSpy: DragEvent;
 
-  let directiveUnderTest : DraggableDirective;
+  let directiveUnderTest: DraggableDirective;
 
   beforeEach(() => {
-    elementRefSpy = jasmine.createSpyObj<ElementRef>("ElementRef", ["nativeElement"]);
-    renderer2Spy = jasmine.createSpyObj<Renderer2>("Renderer2", ["addClass", "removeClass", "setAttribute"]);
-    draggingServiceSpy = jasmine.createSpyObj<DraggingService>("DraggingService", ["startDragging", "stopDragging"]);
+    elementRefSpy = jasmine.createSpyObj<ElementRef>('ElementRef', [
+      'nativeElement',
+    ]);
+    renderer2Spy = jasmine.createSpyObj<Renderer2>('Renderer2', [
+      'addClass',
+      'removeClass',
+      'setAttribute',
+    ]);
+    draggingServiceSpy = jasmine.createSpyObj<DraggingService>(
+      'DraggingService',
+      ['startDragging', 'stopDragging']
+    );
 
-    dragEventSpy = jasmine.createSpyObj(dragEventSpy, ["preventDefault", "stopPropagation"]);
+    dragEventSpy = jasmine.createSpyObj(dragEventSpy, [
+      'preventDefault',
+      'stopPropagation',
+    ]);
 
-    directiveUnderTest = new DraggableDirective(elementRefSpy, renderer2Spy, draggingServiceSpy);
+    directiveUnderTest = new DraggableDirective(
+      elementRefSpy,
+      renderer2Spy,
+      draggingServiceSpy
+    );
   });
 
   it('should create an instance', () => {
-    const directive = new DraggableDirective(elementRefSpy, renderer2Spy, draggingServiceSpy);
+    const directive = new DraggableDirective(
+      elementRefSpy,
+      renderer2Spy,
+      draggingServiceSpy
+    );
     expect(directive).toBeTruthy();
   });
 
   describe('ngOnInit', () => {
     it('should add the canDrag attribute to the element.', () => {
       // Arrange
-      const expectedAttribute = "draggable";
-      const expectedAttributeValue = "true";
+      const expectedAttribute = 'draggable';
+      const expectedAttributeValue = 'true';
 
       // Act
       directiveUnderTest.ngOnInit();
 
       // Assert
-      expect(renderer2Spy.setAttribute).toHaveBeenCalledWith(elementRefSpy.nativeElement, expectedAttribute, expectedAttributeValue);
+      expect(renderer2Spy.setAttribute).toHaveBeenCalledWith(
+        elementRefSpy.nativeElement,
+        expectedAttribute,
+        expectedAttributeValue
+      );
     });
   });
 
@@ -51,7 +75,9 @@ describe('DraggableDirective', () => {
       directiveUnderTest.onDragStart(dragEventSpy);
 
       // Assert
-      expect(draggingServiceSpy.startDragging).toHaveBeenCalledOnceWith(draggable);
+      expect(draggingServiceSpy.startDragging).toHaveBeenCalledOnceWith(
+        draggable
+      );
     });
 
     it('should add the class default class "ez-dragging" if no user classes are set', () => {
@@ -64,8 +90,11 @@ describe('DraggableDirective', () => {
       directiveUnderTest.onDragStart(dragEventSpy);
 
       // Assert
-      expect(directiveUnderTest['_appliedStyles']).toEqual(["ez-dragging"]);
-      expect(renderer2Spy.addClass).toHaveBeenCalledOnceWith(elementRefSpy.nativeElement, "ez-dragging");
+      expect(directiveUnderTest['_appliedStyles']).toEqual(['ez-dragging']);
+      expect(renderer2Spy.addClass).toHaveBeenCalledOnceWith(
+        elementRefSpy.nativeElement,
+        'ez-dragging'
+      );
     });
 
     it('should add the user defined classes', () => {
@@ -82,8 +111,14 @@ describe('DraggableDirective', () => {
       // Assert
       expect(renderer2Spy.addClass).toHaveBeenCalledTimes(2);
       expect(directiveUnderTest['_appliedStyles']).toEqual(['a', 'b']);
-      expect(renderer2Spy.addClass).toHaveBeenCalledWith(elementRefSpy.nativeElement, 'a');
-      expect(renderer2Spy.addClass).toHaveBeenCalledWith(elementRefSpy.nativeElement, 'b');
+      expect(renderer2Spy.addClass).toHaveBeenCalledWith(
+        elementRefSpy.nativeElement,
+        'a'
+      );
+      expect(renderer2Spy.addClass).toHaveBeenCalledWith(
+        elementRefSpy.nativeElement,
+        'b'
+      );
     });
   });
 
@@ -115,8 +150,14 @@ describe('DraggableDirective', () => {
       // Assert
       expect(renderer2Spy.removeClass).toHaveBeenCalledTimes(2);
       expect(directiveUnderTest['_appliedStyles']).toEqual([]);
-      expect(renderer2Spy.removeClass).toHaveBeenCalledWith(elementRefSpy.nativeElement, 'a');
-      expect(renderer2Spy.removeClass).toHaveBeenCalledWith(elementRefSpy.nativeElement, 'b');
+      expect(renderer2Spy.removeClass).toHaveBeenCalledWith(
+        elementRefSpy.nativeElement,
+        'a'
+      );
+      expect(renderer2Spy.removeClass).toHaveBeenCalledWith(
+        elementRefSpy.nativeElement,
+        'b'
+      );
     });
   });
 });

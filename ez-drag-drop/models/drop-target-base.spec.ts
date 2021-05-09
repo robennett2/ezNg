@@ -12,12 +12,12 @@ describe('DropTarget', () => {
       const dropTarget = new DropTargetBase();
 
       // Assert
-      expect(dropTarget.name).toBe("default");
+      expect(dropTarget.name).toBe('default');
     });
 
     it('should initialse name to the value passed when a value is provided.', () => {
       // Arrange
-      const expectedName = "test";
+      const expectedName = 'test';
 
       // Act
       const dropTarget = new DropTargetBase(expectedName);
@@ -35,11 +35,13 @@ describe('DropTarget', () => {
   describe('canDrop', () => {
     it('should return true if the draggable contains the name in its targetables array AND there is no draggable assigned', () => {
       // Arrange
-      const targetables = ["a", "b", "c"];
+      const targetables = ['a', 'b', 'c'];
       const draggable = new DraggableBase();
-      spyOnProperty(draggable, "targetables", "get").and.returnValue(targetables);
+      spyOnProperty(draggable, 'targetables', 'get').and.returnValue(
+        targetables
+      );
 
-      const dropTarget = new DropTargetBase("b");
+      const dropTarget = new DropTargetBase('b');
 
       // Act
       const canDrop = dropTarget.canDrop(draggable);
@@ -50,9 +52,11 @@ describe('DropTarget', () => {
 
     it('should return false if the draggable DOES NOT contain the name in its targetables array AND there is NO draggable assigned', () => {
       // Arrange
-      const targetables = ["a", "b", "c"];
+      const targetables = ['a', 'b', 'c'];
       const draggable = new DraggableBase();
-      spyOnProperty(draggable, "targetables", "get").and.returnValue(targetables);
+      spyOnProperty(draggable, 'targetables', 'get').and.returnValue(
+        targetables
+      );
 
       const dropTarget = new DropTargetBase();
 
@@ -65,11 +69,13 @@ describe('DropTarget', () => {
 
     it('should return false if the draggable contains the name in its targetables array AND there is a draggable assigned', () => {
       // Arrange
-      const targetables = ["a", "b", "c"];
+      const targetables = ['a', 'b', 'c'];
       const draggable = new DraggableBase();
-      spyOnProperty(draggable, "targetables", "get").and.returnValue(targetables);
+      spyOnProperty(draggable, 'targetables', 'get').and.returnValue(
+        targetables
+      );
 
-      const dropTarget = new DropTargetBase("b");
+      const dropTarget = new DropTargetBase('b');
       dropTarget.draggable = draggable;
 
       // Act
@@ -82,9 +88,9 @@ describe('DropTarget', () => {
 
   it('should return false if the draggable DOES NOT contain the name in its targetables array AND there is a draggable assigned', () => {
     // Arrange
-    const targetables = ["a", "b", "c"];
+    const targetables = ['a', 'b', 'c'];
     const draggable = new DraggableBase();
-    spyOnProperty(draggable, "targetables", "get").and.returnValue(targetables);
+    spyOnProperty(draggable, 'targetables', 'get').and.returnValue(targetables);
 
     const dropTarget = new DropTargetBase();
     dropTarget.draggable = draggable;
@@ -99,11 +105,13 @@ describe('DropTarget', () => {
   describe('recieveDraggable', () => {
     it('should check if the draggable can be dropped and return false if it has been dropped', () => {
       // Arrange
-      const targetables = ["a", "b", "c"];
+      const targetables = ['a', 'b', 'c'];
       const draggable = new DraggableBase();
-      spyOnProperty(draggable, "targetables", "get").and.returnValue(targetables);
+      spyOnProperty(draggable, 'targetables', 'get').and.returnValue(
+        targetables
+      );
 
-      const dropTarget = new DropTargetBase("b");
+      const dropTarget = new DropTargetBase('b');
 
       // Act
       const hasDropped = dropTarget.recieveDraggable(draggable);
@@ -114,11 +122,13 @@ describe('DropTarget', () => {
 
     it('should check if the draggable can be dropped and return false if it CAN NOT be dropped', () => {
       // Arrange
-      const targetables = ["default"];
+      const targetables = ['default'];
       const draggable = new DraggableBase();
-      spyOnProperty(draggable, "targetables", "get").and.returnValue(targetables);
+      spyOnProperty(draggable, 'targetables', 'get').and.returnValue(
+        targetables
+      );
 
-      const dropTarget = new DropTargetBase("test");
+      const dropTarget = new DropTargetBase('test');
 
       // Act
       const hasDropped = dropTarget.recieveDraggable(draggable);
@@ -129,10 +139,12 @@ describe('DropTarget', () => {
 
     it('should set the drop target property on the draggable', () => {
       // Arrange
-      const targetables = ["default"];
+      const targetables = ['default'];
       const draggable = new DraggableBase();
-      spyOnProperty(draggable, "targetables", "get").and.returnValue(targetables);
-      const setDropTargetSpy = spyOnProperty(draggable, "dropTarget", "set");
+      spyOnProperty(draggable, 'targetables', 'get').and.returnValue(
+        targetables
+      );
+      const setDropTargetSpy = spyOnProperty(draggable, 'dropTarget', 'set');
 
       const dropTarget = new DropTargetBase();
 

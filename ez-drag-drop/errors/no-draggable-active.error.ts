@@ -1,1 +1,1 @@
-export const NoDraggableActiveError = () => new Error("No draggable active.");
+export const NoDraggableActiveError = () => new Error('No draggable active.');

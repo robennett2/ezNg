@@ -12,7 +12,7 @@ describe('Draggable', () => {
       const draggable = new DraggableBase();
 
       // Assert
-      expect(draggable.targetables).toEqual(["default"]);
+      expect(draggable.targetables).toEqual(['default']);
       expect(draggable.dropTarget).toBeNull();
     });
   });
@@ -21,11 +21,15 @@ describe('Draggable', () => {
     it('should set the old dropTarget.draggable to null when a new one is assigned', () => {
       // Arrange
       const existingDropTarget = new DropTargetBase();
-      const existingSetDropTargetDraggableSpy = spyOnProperty(existingDropTarget, "draggable", "set");
+      const existingSetDropTargetDraggableSpy = spyOnProperty(
+        existingDropTarget,
+        'draggable',
+        'set'
+      );
 
       const newDropTarget = new DropTargetBase();
 
-      const draggable = new DraggableBase(["default"], existingDropTarget);
+      const draggable = new DraggableBase(['default'], existingDropTarget);
 
       // Act
       draggable.dropTarget = newDropTarget;

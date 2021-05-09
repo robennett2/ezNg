@@ -5,18 +5,18 @@ import { DraggableBase } from '../models/draggable-base';
 import { DropTargetBase } from '../models/drop-target-base';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DraggingService {
-  private _activeDraggable : DraggableBase | null = null;
+  private _activeDraggable: DraggableBase | null = null;
 
   public get activeDraggable(): DraggableBase | null {
     return this._activeDraggable;
   }
 
-  constructor() { }
+  constructor() {}
 
-  startDragging(draggable : DraggableBase) {
+  startDragging(draggable: DraggableBase): void {
     if (this.activeDraggable !== null) {
       throw DraggableAlreadyActiveError();
     }
@@ -24,7 +24,7 @@ export class DraggingService {
     this._activeDraggable = draggable;
   }
 
-  canDrop(dropTarget : DropTargetBase) {
+  canDrop(dropTarget: DropTargetBase): boolean {
     if (!this.activeDraggable) {
       throw NoDraggableActiveError();
     }
@@ -32,7 +32,7 @@ export class DraggingService {
     return dropTarget.canDrop(this.activeDraggable);
   }
 
-  drop(dropTarget : DropTargetBase) {
+  drop(dropTarget: DropTargetBase): void {
     if (!this.activeDraggable) {
       throw NoDraggableActiveError();
     }
@@ -44,7 +44,7 @@ export class DraggingService {
     this.stopDragging();
   }
 
-  stopDragging() {
+  stopDragging(): void {
     this._activeDraggable = null;
   }
 }
