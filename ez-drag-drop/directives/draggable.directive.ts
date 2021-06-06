@@ -27,6 +27,7 @@ export class DraggableDirective implements OnInit {
   @HostListener('dragstart', ['$event']) onDragStart(e: DragEvent): void {
     this.draggingService.startDragging(this.draggable);
     this.addDraggingStyles();
+    e.stopPropagation();
   }
 
   @HostListener('dragend', ['$event']) onDragEnd(e: DragEvent): void {

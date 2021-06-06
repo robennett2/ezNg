@@ -25,7 +25,7 @@ describe('DraggableDirective', () => {
       ['startDragging', 'stopDragging']
     );
 
-    dragEventSpy = jasmine.createSpyObj(dragEventSpy, [
+    dragEventSpy = jasmine.createSpyObj('DragEvent', [
       'preventDefault',
       'stopPropagation',
     ]);
