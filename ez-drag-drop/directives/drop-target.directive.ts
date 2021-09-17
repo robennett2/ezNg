@@ -4,21 +4,21 @@ import {
   HostListener,
   Input,
   Renderer2,
-} from '@angular/core';
-import { DropTargetBase } from '../models/drop-target-base';
-import { DraggingService } from '../services/dragging.service';
+} from "@angular/core";
+import { DropTargetBase } from "../models/drop-target-base";
+import { DraggingService } from "../services/dragging.service";
 
 @Directive({
-  selector: '[ezDropTarget]',
+  selector: "[ezDropTarget]",
 })
 export class DropTargetDirective {
-  @Input('ezDropTarget') dropTarget!: DropTargetBase;
+  @Input("ezDropTarget") dropTarget!: DropTargetBase;
   // tslint:disable-next-line:no-input-rename
-  @Input('ezDragOverStyle') dragOverStyles: string[] = ['ez-drag-over'];
+  @Input("ezDragOverStyle") dragOverStyles: string[] = ["ez-drag-over"];
   // tslint:disable-next-line:no-input-rename
-  @Input('ezCanDropStyle') canDropStyles: string[] = ['ez-can-drop'];
+  @Input("ezCanDropStyle") canDropStyles: string[] = ["ez-can-drop"];
   // tslint:disable-next-line:no-input-rename
-  @Input('ezCanNotDropStyle') canNotDropStyles: string[] = ['ez-can-not-drop'];
+  @Input("ezCanNotDropStyle") canNotDropStyles: string[] = ["ez-can-not-drop"];
 
   private _appliedStyles: string[] = [];
 
@@ -28,7 +28,7 @@ export class DropTargetDirective {
     private draggingService: DraggingService
   ) {}
 
-  @HostListener('dragover', ['$event']) onDragOver(e: DragEvent): void {
+  @HostListener("dragover", ["$event"]) onDragOver(e: DragEvent): void {
     this.addDragOverStyles();
     if (this.draggingService.canDrop(this.dropTarget)) {
       this.addCanDropStyles();
@@ -39,7 +39,11 @@ export class DropTargetDirective {
     }
   }
 
-  @HostListener('drop', ['$event']) onDrop(e: DragEvent): void {
+  @HostListener("dragleave", ["$event"]) onDragLeave(e: DragEvent): void {
+    this.removeDragOverStyles();
+  }
+
+  @HostListener("drop", ["$event"]) onDrop(e: DragEvent): void {
     this.draggingService.drop(this.dropTarget);
     this.removeAllAppliedClassesFromElement();
   }
@@ -68,6 +72,12 @@ export class DropTargetDirective {
   private addDragOverStyles(): void {
     for (const dragOverStyle of this.dragOverStyles) {
       this.addClassToElement(dragOverStyle);
+    }
+  }
+
+  private removeDragOverStyles(): void {
+    for (const dragOverStyle of this.dragOverStyles) {
+      this.removeClassFromElement(dragOverStyle);
     }
   }
 
