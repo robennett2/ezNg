@@ -29,13 +29,15 @@ export class DropTargetDirective {
   ) {}
 
   @HostListener("dragover", ["$event"]) onDragOver(e: DragEvent): void {
-    this.addDragOverStyles();
-    if (this.draggingService.canDrop(this.dropTarget)) {
-      this.addCanDropStyles();
-      e.preventDefault();
-      e.stopPropagation();
-    } else {
-      this.addCanNotDropStyles();
+    if (this.draggingService.activeDraggable) {
+      this.addDragOverStyles();
+      if (this.draggingService.canDrop(this.dropTarget)) {
+        this.addCanDropStyles();
+        e.preventDefault();
+        e.stopPropagation();
+      } else {
+        this.addCanNotDropStyles();
+      }
     }
   }
 
@@ -63,7 +65,7 @@ export class DropTargetDirective {
   }
 
   private removeAllAppliedClassesFromElement(): void {
-    const appliedStyles = [...this._appliedStyles]; // Copy the array so we aren't iterating and modifying it
+    const appliedStyles = this._appliedStyles.slice();
     for (const style of appliedStyles) {
       this.removeClassFromElement(style);
     }

@@ -2,8 +2,16 @@ import { ElementRef, Renderer2 } from "@angular/core";
 import { DraggableBase } from "../models/draggable-base";
 import { DropTargetBase } from "../models/drop-target-base";
 import { DraggingService } from "../services/dragging.service";
-import { DraggableDirective } from "./draggable.directive";
 import { DropTargetDirective } from "./drop-target.directive";
+
+function getSpiedPropertyGetter<T, K extends keyof T>(
+  spyObj: jasmine.SpyObj<T>,
+  propName: K
+): jasmine.Spy<() => T[K]> {
+  return Object.getOwnPropertyDescriptor(spyObj, propName)?.get as jasmine.Spy<
+    () => T[K]
+  >;
+}
 
 describe("DraggableDirective", () => {
   let elementRefSpy: jasmine.SpyObj<ElementRef>;
@@ -17,14 +25,22 @@ describe("DraggableDirective", () => {
     elementRefSpy = jasmine.createSpyObj<ElementRef>("ElementRef", [
       "nativeElement",
     ]);
+
     renderer2Spy = jasmine.createSpyObj<Renderer2>("Renderer2", [
       "addClass",
       "removeClass",
     ]);
+
     draggingServiceSpy = jasmine.createSpyObj<DraggingService>(
       "DraggingService",
-      ["canDrop", "drop"]
+      ["canDrop", "drop"],
+      ["activeDraggable"]
     );
+
+    getSpiedPropertyGetter(
+      draggingServiceSpy,
+      "activeDraggable"
+    ).and.returnValue({} as DraggableBase);
 
     dragEventSpy = jasmine.createSpyObj("DragEvent", [
       "preventDefault",
@@ -80,6 +96,37 @@ describe("DraggableDirective", () => {
       expect(draggingServiceSpy.canDrop).toHaveBeenCalledOnceWith(dropTarget);
       expect(dragEventSpy.preventDefault).not.toHaveBeenCalled();
       expect(dragEventSpy.stopPropagation).not.toHaveBeenCalled();
+    });
+
+    it("should not call canDrop if the activeDraggable is not truthy", () => {
+      // Arrange
+      getSpiedPropertyGetter(
+        draggingServiceSpy,
+        "activeDraggable"
+      ).and.returnValue(null);
+
+      // Act
+      directiveUnderTest.onDragOver(dragEventSpy);
+
+      // Assert
+      expect(draggingServiceSpy.canDrop).not.toHaveBeenCalled();
+      expect(dragEventSpy.preventDefault).not.toHaveBeenCalled();
+      expect(dragEventSpy.stopPropagation).not.toHaveBeenCalled();
+    });
+
+    it("should not apply any styling activeDraggable is not truthy", () => {
+      // Arrange
+      getSpiedPropertyGetter(
+        draggingServiceSpy,
+        "activeDraggable"
+      ).and.returnValue(null);
+
+      // Act
+      directiveUnderTest.onDragOver(dragEventSpy);
+
+      // Assert
+      expect(renderer2Spy.addClass).not.toHaveBeenCalled();
+      expect(directiveUnderTest["_appliedStyles"].length).toEqual(0);
     });
 
     describe("styling - default", () => {
