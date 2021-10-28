@@ -5,17 +5,17 @@ import {
   Input,
   OnInit,
   Renderer2,
-} from '@angular/core';
-import { DraggableBase } from '../models/draggable-base';
-import { DraggingService } from '../services/dragging.service';
+} from "@angular/core";
+import { DraggableBase } from "../models/draggable-base";
+import { DraggingService } from "../services/dragging.service";
 
 @Directive({
-  selector: '[ezDraggable]',
+  selector: "[ezDraggable]",
 })
 export class DraggableDirective implements OnInit {
-  @Input('ezDraggable') draggable!: DraggableBase;
+  @Input("ezDraggable") draggable!: DraggableBase;
   // tslint:disable-next-line:no-input-rename
-  @Input('ezDraggingStyles') draggingStyles: string[] = ['ez-dragging'];
+  @Input("ezDraggingStyles") draggingStyles: string[] = ["ez-dragging"];
   private _appliedStyles: string[] = [];
 
   constructor(
@@ -24,13 +24,13 @@ export class DraggableDirective implements OnInit {
     private draggingService: DraggingService
   ) {}
 
-  @HostListener('dragstart', ['$event']) onDragStart(e: DragEvent): void {
+  @HostListener("dragstart", ["$event"]) onDragStart(e: DragEvent): void {
     this.draggingService.startDragging(this.draggable);
     this.addDraggingStyles();
     e.stopPropagation();
   }
 
-  @HostListener('dragend', ['$event']) onDragEnd(e: DragEvent): void {
+  @HostListener("dragend", ["$event"]) onDragEnd(e: DragEvent): void {
     this.draggingService.stopDragging();
     this.removeAllAppliedClassesFromElement();
   }
@@ -65,8 +65,8 @@ export class DraggableDirective implements OnInit {
   ngOnInit(): void {
     this.renderer.setAttribute(
       this.elementRef.nativeElement,
-      'draggable',
-      'true'
+      "draggable",
+      "true"
     );
   }
 }
