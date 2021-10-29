@@ -1,19 +1,25 @@
 import { FormBuilder, FormGroup } from "@angular/forms";
-import EzFormBuilderBase from "./base/ez-form-builder-base";
+import EzOptionsBuilderBase from "./base/ez-options-builder-base";
 import EzFormControlBuilder from "./ez-form-control-builder";
 import IBuilder from "./interfaces/builder.interface";
 import { IFormControlBuilder } from "./interfaces/form-control-builder.interface";
+import EzFormGroupOptionsBuilder from "./ez-form-group-options-builder";
+import { IEzOptionBuilderBase } from "./interfaces/ez-option-builder-base.interface";
+import { IEzFormGroupOptionBuilder } from "./interfaces/ez-form-group-option-builder.interface";
 
-export default class EzFormGroupBuilder
-  extends EzFormBuilderBase<EzFormGroupBuilder, any>
-  implements IBuilder<FormGroup> {
+export default class EzFormGroupBuilder implements IBuilder<FormGroup> {
   private formControlBuilders: IFormControlBuilder[] = [];
+  private optionsBuilder: EzFormGroupOptionsBuilder = new EzFormGroupOptionsBuilder(
+    this
+  );
 
-  constructor(private formBuilder: FormBuilder) {
-    super();
+  constructor(private formBuilder: FormBuilder) {}
+
+  that(): IEzOptionBuilderBase<IEzFormGroupOptionBuilder, EzFormGroupBuilder> {
+    return this.optionsBuilder;
   }
 
-  withControl<TValue>(controlName: string): EzFormControlBuilder<TValue> {
+  withControl<TValue = any>(controlName: string): EzFormControlBuilder<TValue> {
     const controlBuilder = new EzFormControlBuilder<TValue>(
       controlName,
       this,
@@ -31,14 +37,17 @@ export default class EzFormGroupBuilder
       controls[controlBuilder.controlName] = controlBuilder.build();
     }
 
-    const group = this.formBuilder.group(controls, this.abstractControlOptions);
+    const group = this.formBuilder.group(
+      controls,
+      this.optionsBuilder.abstractControlOptions
+    );
 
-    if (!!this.onValueChangesCallback) {
-      this.onValueChangesCallback(group.valueChanges);
+    if (!!this.optionsBuilder?.onValueChangesCallback) {
+      this.optionsBuilder.onValueChangesCallback(group.valueChanges);
     }
 
-    if (!!this.onStatusChangesCallback) {
-      this.onStatusChangesCallback(group.statusChanges);
+    if (!!this.optionsBuilder?.onStatusChangesCallback) {
+      this.optionsBuilder.onStatusChangesCallback(group.statusChanges);
     }
 
     return group;

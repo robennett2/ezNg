@@ -1,48 +1,43 @@
 import { FormBuilder, FormControl } from "@angular/forms";
-import { Observable } from "rxjs";
-import EzFormBuilderBase from "./base/ez-form-builder-base";
+import EzFormControlOptionsBuilder from "./ez-form-control-options-builder";
 import EzFormGroupBuilder from "./ez-form-group-builder";
 import { IFormControlBuilder } from "./interfaces/form-control-builder.interface";
-import { FormStatus } from "./types/form-status.type";
+import { IEzFormControlOptionBuilder } from "./interfaces/ez-form-control-option-builder.interface";
 
 export default class EzFormControlBuilder<TValue>
-  extends EzFormBuilderBase<EzFormControlBuilder<TValue>, TValue>
   implements IFormControlBuilder {
-  private initialValue: TValue | null = null;
+  private optionsBuilder: EzFormControlOptionsBuilder<TValue>;
 
   constructor(
     private _controlName: string,
     private formGroupBuilder: EzFormGroupBuilder,
     private formBuilder: FormBuilder
   ) {
-    super();
+    this.optionsBuilder = new EzFormControlOptionsBuilder<TValue>(
+      this.formGroupBuilder
+    );
   }
 
   public get controlName(): string {
     return this._controlName;
   }
 
-  hasInitialValue(initialValue: TValue): EzFormControlBuilder<TValue> {
-    this.initialValue = initialValue;
-    return this;
-  }
-
-  and(): EzFormGroupBuilder {
-    return this.formGroupBuilder;
+  that(): IEzFormControlOptionBuilder<TValue> {
+    return this.optionsBuilder;
   }
 
   build(): FormControl {
     const control = this.formBuilder.control(
-      this.initialValue,
-      this.abstractControlOptions
+      this.optionsBuilder?.initialValue,
+      this.optionsBuilder?.abstractControlOptions
     );
 
-    if (!!this.onValueChangesCallback) {
-      this.onValueChangesCallback(control.valueChanges);
+    if (!!this.optionsBuilder?.onValueChangesCallback) {
+      this.optionsBuilder.onValueChangesCallback(control.valueChanges);
     }
 
-    if (!!this.onStatusChangesCallback) {
-      this.onStatusChangesCallback(control.statusChanges);
+    if (!!this.optionsBuilder?.onStatusChangesCallback) {
+      this.optionsBuilder.onStatusChangesCallback(control.statusChanges);
     }
 
     return control;
