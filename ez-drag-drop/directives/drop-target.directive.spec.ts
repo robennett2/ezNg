@@ -1,17 +1,9 @@
 import { ElementRef, Renderer2 } from "@angular/core";
+import { getSpiedPropertyGetter } from "../../ez-helpers/testing/get-spied-property-getter";
 import { DraggableBase } from "../models/draggable-base";
 import { DropTargetBase } from "../models/drop-target-base";
 import { DraggingService } from "../services/dragging.service";
 import { DropTargetDirective } from "./drop-target.directive";
-
-function getSpiedPropertyGetter<T, K extends keyof T>(
-  spyObj: jasmine.SpyObj<T>,
-  propName: K
-): jasmine.Spy<() => T[K]> {
-  return Object.getOwnPropertyDescriptor(spyObj, propName)?.get as jasmine.Spy<
-    () => T[K]
-  >;
-}
 
 describe("DraggableDirective", () => {
   let elementRefSpy: jasmine.SpyObj<ElementRef>;

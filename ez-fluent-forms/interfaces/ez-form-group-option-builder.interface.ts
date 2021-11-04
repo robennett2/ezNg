@@ -5,4 +5,9 @@ export type IEzFormGroupOptionBuilder<TValue = any> = IEzOptionBuilderBase<
   IEzFormGroupOptionBuilder<TValue>,
   EzFormGroupBuilder,
   TValue
-> & {};
+> & {
+  mapsToModel(
+    modelInstance: any,
+    controlPrefix?: string
+  ): IEzFormGroupOptionBuilder;
+};

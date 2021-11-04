@@ -15,7 +15,7 @@ export default class EzFormGroupBuilder implements IBuilder<FormGroup> {
 
   constructor(private formBuilder: FormBuilder) {}
 
-  that(): IEzOptionBuilderBase<IEzFormGroupOptionBuilder, EzFormGroupBuilder> {
+  that(): IEzFormGroupOptionBuilder {
     return this.optionsBuilder;
   }
 
@@ -41,6 +41,14 @@ export default class EzFormGroupBuilder implements IBuilder<FormGroup> {
       controls,
       this.optionsBuilder.abstractControlOptions
     );
+
+    if (this.optionsBuilder.mapToModelCallbacks.length > 0) {
+      group.valueChanges.subscribe(() => {
+        this.optionsBuilder.mapToModelCallbacks.forEach((callback) =>
+          callback(group.value)
+        );
+      });
+    }
 
     if (!!this.optionsBuilder?.onValueChangesCallback) {
       this.optionsBuilder.onValueChangesCallback(group.valueChanges);
