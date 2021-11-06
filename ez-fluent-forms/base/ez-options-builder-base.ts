@@ -4,8 +4,13 @@ import {
   AbstractControlOptions,
 } from "@angular/forms";
 import { Observable } from "rxjs";
-import { IEzOptionBuilderBase } from "../interfaces/builders/ez-option-builder-base.interface";
-import { FormStatus } from "../types/form-status.type";
+import { EzFormValidationBuilder } from "../ez-form-validation-builder";
+import {
+  IEzFormValidationBuilder,
+  IEzOptionBuilderBase,
+} from "../interfaces/builders/ez-option-builder-base.interface";
+import { EzValidationMessageService } from "../services/ez-validation-message.service";
+import { FormStatus } from "../new/types/form/form-status.type";
 import { UpdateOn } from "../types/update-on.type";
 
 export default class EzOptionsBuilderBase<
@@ -24,12 +29,9 @@ export default class EzOptionsBuilderBase<
     | ((obs: Observable<FormStatus>) => any)
     | null = null;
 
-  get validators(): ValidatorFn[] | null {
-    return this._validators.length > 0 ? this._validators : null;
-  }
-
-  get asyncValidators(): AsyncValidatorFn[] | null {
-    return this._asyncValidators.length > 0 ? this._asyncValidators : null;
+  private _validatorBuilders: EzFormValidationBuilder<TParentBuilder>[] = [];
+  get validatorBuilders(): EzFormValidationBuilder<TParentBuilder>[] {
+    return this._validatorBuilders;
   }
 
   get updateOn(): UpdateOn {
@@ -44,30 +46,45 @@ export default class EzOptionsBuilderBase<
     return this._onStatusChangesCallback;
   }
 
-  constructor(private parentBuilder: TParentBuilder) {}
+  constructor(
+    private ezValidationErrorService: EzValidationMessageService,
+    private parentBuilder: TParentBuilder
+  ) {}
 
   and(): TParentBuilder {
     return this.parentBuilder;
   }
 
-  hasValidator(validator: ValidatorFn): TOptionBuilder {
-    this._validators.push(validator);
-    return (this as unknown) as TOptionBuilder;
+  hasValidator(
+    validator: ValidatorFn
+  ): IEzFormValidationBuilder<TParentBuilder> {
+    const validatorBuilder = new EzFormValidationBuilder<TParentBuilder>(
+      [validator],
+      false,
+      this.parentBuilder
+    );
+
+    this._validatorBuilders.push(validatorBuilder);
+
+    return validatorBuilder;
   }
 
-  hasValidators(validators: ValidatorFn[]): TOptionBuilder {
-    this._validators.push(...validators);
-    return (this as unknown) as TOptionBuilder;
+  hasValidators(
+    validators: ValidatorFn[]
+  ): IEzFormValidationBuilder<TParentBuilder> {
+    throw new Error("Method not implemented.");
   }
 
-  hasAsyncValidator(validator: AsyncValidatorFn): TOptionBuilder {
-    this._asyncValidators.push(validator);
-    return (this as unknown) as TOptionBuilder;
+  hasAsyncValidator(
+    validator: AsyncValidatorFn
+  ): IEzFormValidationBuilder<TParentBuilder> {
+    throw new Error("Method not implemented.");
   }
 
-  hasAsyncValidators(validators: AsyncValidatorFn[]): TOptionBuilder {
-    this._asyncValidators.push(...validators);
-    return (this as unknown) as TOptionBuilder;
+  hasAsyncValidators(
+    validators: AsyncValidatorFn[]
+  ): IEzFormValidationBuilder<TParentBuilder> {
+    throw new Error("Method not implemented.");
   }
 
   shouldUpdateOn(updateOn: UpdateOn): TOptionBuilder {
@@ -90,9 +107,25 @@ export default class EzOptionsBuilderBase<
   }
 
   public get abstractControlOptions(): AbstractControlOptions {
+    let validators: ValidatorFn[] = [];
+    let asyncValidators: AsyncValidatorFn[] = [];
+
+    this._validatorBuilders.forEach((builder) => {
+      const builderOptions = builder.build();
+      if (builderOptions.validators) {
+        if (builderOptions.isAsync) {
+          asyncValidators.push(
+            ...(builderOptions.validators as AsyncValidatorFn[])
+          );
+        } else {
+          validators.push(...(builderOptions.validators as ValidatorFn[]));
+        }
+      }
+    });
+
     return {
-      validators: this.validators,
-      asyncValidators: this.asyncValidators,
+      validators: validators,
+      asyncValidators: asyncValidators,
       updateOn: this.updateOn,
     };
   }

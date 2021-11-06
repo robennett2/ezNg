@@ -1,10 +1,8 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { IEzValidationErrorOptions } from "../../ez-form-validation-builder";
-import { EzValidationMessageService } from "../../new/services/ez-validation-message.service";
-import { IEzValidationMessage } from "../../new/types/ez-validation-message.interface";
+import { EzValidationMessageService } from "../../services/ez-validation-message.service";
+import { IEzValidationMessage } from "../../types/ez-validation-message.interface";
 
 @Component({
   selector: "app-ez-validation-message",
@@ -12,10 +10,9 @@ import { IEzValidationMessage } from "../../new/types/ez-validation-message.inte
   styleUrls: ["./ez-validation-message.component.scss"],
 })
 export class EzValidationMessageComponent implements OnInit, OnDestroy {
-  @Input("forForm") formGroup!: FormGroup;
   @Input("forControl") formControlName!: string;
-  validationMessages: IEzValidationMessage[] = [];
   private onDestroyedSubject = new Subject<void>();
+  errorMessages: IEzValidationMessage[] = [];
 
   constructor(private ezValidationMessageService: EzValidationMessageService) {}
 
@@ -23,8 +20,8 @@ export class EzValidationMessageComponent implements OnInit, OnDestroy {
     this.ezValidationMessageService
       .registerEzValidationMessageComponentForEntry(this.formControlName)
       .pipe(takeUntil(this.onDestroyedSubject))
-      .subscribe((validationMessages) => {
-        this.validationMessages = validationMessages;
+      .subscribe((errorMessages: IEzValidationMessage[]) => {
+        this.errorMessages = errorMessages;
       });
   }
 

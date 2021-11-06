@@ -7,8 +7,11 @@ import {
   ViewChild,
 } from "@angular/core";
 import { EzValdiationMessageHostDirective } from "src/external/ezNg/ez-fluent-forms/directives/ez-valdiation-message-host.directive";
+import { IEzValidationErrorOptions } from "../../ez-form-validation-builder";
 import { IEzValidationError } from "../../interfaces/validatonErrors/ez-validation-error.interface";
 import { IEzValidationErrorComponent } from "../../interfaces/validatonErrors/ez-validaton-error-component.interface";
+import { IEzValidationMessageComponent } from "../../new/components/ez-validation-message-component.interface";
+import { IEzValidationMessage } from "../../new/types/ez-validation-message.interface";
 
 @Component({
   selector: "ez-validation-message-host",
@@ -16,8 +19,8 @@ import { IEzValidationErrorComponent } from "../../interfaces/validatonErrors/ez
   styleUrls: ["./ez-validation-message-host.component.scss"],
 })
 export class EzValidationMessageHostComponent implements OnInit {
-  @Input() validationError: IEzValidationError | null = null;
-  @ViewChild(EzValidationMessageHostComponent, { static: true })
+  @Input() validationErrorOptions: IEzValidationMessage | null = null;
+  @ViewChild(EzValdiationMessageHostDirective, { static: true })
   validationMessageHost!: EzValdiationMessageHostDirective;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
@@ -27,22 +30,20 @@ export class EzValidationMessageHostComponent implements OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    const scheduableChange = changes["scheduable"];
-    if (
-      scheduableChange &&
-      scheduableChange.currentValue !== scheduableChange.previousValue
-    ) {
-      this.loadHostedComponent();
-    }
+    this.loadHostedComponent();
   }
 
   private loadHostedComponent() {
-    if (!this.validationError || !this.validationError.componentType) {
+    debugger;
+    if (
+      !this.validationErrorOptions ||
+      !this.validationErrorOptions.componentType
+    ) {
       return;
     }
 
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(
-      this.validationError.componentType
+      this.validationErrorOptions.componentType
     );
 
     const viewContainerRef = this.validationMessageHost.viewContainerRef;
@@ -51,6 +52,8 @@ export class EzValidationMessageHostComponent implements OnInit {
     const componentRef = viewContainerRef.createComponent<any>(
       componentFactory
     );
-    (componentRef.instance as IEzValidationErrorComponent).validationError = this.validationError;
+
+    debugger;
+    (componentRef.instance as IEzValidationMessageComponent).validationMessage = this.validationErrorOptions;
   }
 }

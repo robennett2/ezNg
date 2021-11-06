@@ -1,7 +1,5 @@
-import { Type } from "@angular/core";
+import { IEzValidationErrorOptions } from "../../ez-form-validation-builder";
 
 export interface IEzValidationError {
-  componentType: Type<any> | null;
   message: string | null;
-  forValidators: string[];
 }
