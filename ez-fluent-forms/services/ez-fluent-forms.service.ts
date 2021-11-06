@@ -13,8 +13,9 @@ export class EzFluentFormsService {
     private ezValidationMessageService: EzValidationMessageService
   ) {}
 
-  createGroup(): EzFormGroupBuilder {
+  createGroup(entryName: string): EzFormGroupBuilder {
     return new EzFormGroupBuilder(
+      entryName,
       this.formBuilder,
       this.ezValidationMessageService
     );

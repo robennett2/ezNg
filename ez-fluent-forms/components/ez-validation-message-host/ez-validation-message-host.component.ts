@@ -34,7 +34,6 @@ export class EzValidationMessageHostComponent implements OnInit {
   }
 
   private loadHostedComponent() {
-    debugger;
     if (
       !this.validationErrorOptions ||
       !this.validationErrorOptions.componentType
@@ -53,7 +52,6 @@ export class EzValidationMessageHostComponent implements OnInit {
       componentFactory
     );
 
-    debugger;
     (componentRef.instance as IEzValidationMessageComponent).validationMessage = this.validationErrorOptions;
   }
 }

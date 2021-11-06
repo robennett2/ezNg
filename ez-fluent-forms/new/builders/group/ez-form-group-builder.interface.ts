@@ -19,6 +19,4 @@ export type IEzFormGroupBuilder = IEzOptionsProvider<IEzFormGroupOptionBuilder> 
 
 export type IEzFormGroupOptionBuilder = IEzFormEntryOptionBuilder<IEzFormGroupBuilder> &
   IEzBuildProvider<IEzFormGroupOptions> &
-  IEzParentProvider<IEzFormGroupBuilder> & {
-    updatesOn(updateOn: UpdateOn): IEzFormGroupOptionBuilder;
-  };
+  IEzParentProvider<IEzFormGroupBuilder> & {};

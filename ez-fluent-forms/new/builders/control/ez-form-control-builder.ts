@@ -8,9 +8,13 @@ import {
 import { Observable } from "rxjs";
 import { EzValidationMessageService } from "../../services/ez-validation-message.service";
 import { FormStatus } from "../../types/form/form-status.type";
+import { UpdateOn } from "../../types/form/update-on.type";
 import { IEzFormControlOptions } from "../../types/options/ez-form-control-options.interface";
 import { IEzFormEntryOptionBuilder } from "../ez-form-entry-options-builder.interface";
-import { IEzFormGroupBuilder } from "../group/ez-form-group-builder.interface";
+import {
+  IEzFormGroupBuilder,
+  IEzFormGroupOptionBuilder,
+} from "../group/ez-form-group-builder.interface";
 import { EzFormValidationBuilder } from "../validation/ez-form-validation-builder";
 import { IEzFormValidationBuilder } from "../validation/ez-form-validation-builder.interface";
 import {
@@ -58,12 +62,24 @@ export class EzFormControlBuilder implements IEzFormControlBuilder {
     const abstractControlOptions: AbstractControlOptions = {
       validators: validators,
       asyncValidators: asyncValidators,
-      updateOn: "change", // TODO: move to base and get from options
+      updateOn: formControlOptions?.updateOn ?? "change", // TODO: move to base and get from options
     };
 
     const control = this.formBuilder.control(
       formControlOptions?.initialValue,
       abstractControlOptions
+    );
+
+    formControlOptions.statusChangesSubscribers.forEach(
+      (statusChangesSubscriber) => {
+        statusChangesSubscriber(control.statusChanges);
+      }
+    );
+
+    formControlOptions.valueChangesSubscribers.forEach(
+      (valueChangesSubscriber) => {
+        valueChangesSubscriber(control.valueChanges);
+      }
     );
 
     control.statusChanges.subscribe((statusChange: FormStatus) => {
@@ -104,6 +120,13 @@ export class EzFormControlBuilder implements IEzFormControlBuilder {
 export class EzFormControlOptionsBuilder
   implements IEzFormControlOptionBuilder {
   private initialValue?: any;
+  private valueChangesSubscribers: ((
+    valueChanges$: Observable<any>
+  ) => void)[] = [];
+  private statusChangesSubscribers: ((
+    statusChanges$: Observable<FormStatus>
+  ) => void)[] = [];
+  private updateOn: UpdateOn = "change";
 
   constructor(
     private entryName: string,
@@ -112,6 +135,13 @@ export class EzFormControlOptionsBuilder
   ) {}
 
   private formValidationBuilders: IEzFormValidationBuilder<IEzFormControlBuilder>[] = [];
+
+  updatesOn(
+    updateOn: UpdateOn
+  ): IEzFormEntryOptionBuilder<IEzFormControlBuilder> {
+    this.updateOn = updateOn;
+    return this;
+  }
 
   hasValidator(
     validator: ValidatorFn,
@@ -139,13 +169,15 @@ export class EzFormControlOptionsBuilder
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
   ): IEzFormEntryOptionBuilder<IEzFormControlBuilder> {
-    throw new Error("Method not implemented.");
+    this.valueChangesSubscribers.push(valueChangesSubscriber);
+    return this;
   }
 
   listensForStatusChanges(
-    valueChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
+    statusChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
   ): IEzFormEntryOptionBuilder<IEzFormControlBuilder> {
-    throw new Error("Method not implemented.");
+    this.statusChangesSubscribers.push(statusChangesSubscriber);
+    return this;
   }
 
   and(): IEzFormControlBuilder {
@@ -160,9 +192,10 @@ export class EzFormControlOptionsBuilder
     return {
       entryName: this.entryName,
       initialValue: this.initialValue,
-      statusChangesSubscribers: [],
+      statusChangesSubscribers: this.statusChangesSubscribers,
       validatorOptions: controlValidationOptions,
-      valueChangesSubscribers: [],
+      valueChangesSubscribers: this.valueChangesSubscribers,
+      updateOn: this.updateOn,
     };
   }
 }

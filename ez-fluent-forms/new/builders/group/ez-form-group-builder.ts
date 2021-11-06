@@ -14,6 +14,7 @@ import { IEzFormGroupOptions } from "../../types/options/ez-form-group-options.i
 import { EzFormControlBuilder } from "../control/ez-form-control-builder";
 import { IEzFormControlBuilder } from "../control/ez-form-control-builder.interface";
 import { IEzFormEntryOptionBuilder } from "../ez-form-entry-options-builder.interface";
+import { EzFormValidationBuilder } from "../validation/ez-form-validation-builder";
 import { IEzFormValidationBuilder } from "../validation/ez-form-validation-builder.interface";
 import {
   IEzFormGroupBuilder,
@@ -25,10 +26,13 @@ export class EzFormGroupBuilder implements IEzFormGroupBuilder {
     [formEntryName: string]: IEzFormControlBuilder;
   } = {};
   private formGroupOptionsBuilder: IEzFormGroupOptionBuilder = new EzFormGroupOptionsBuilder(
-    this
+    this.entryName,
+    this,
+    this.ezValidationMessageService
   );
 
   constructor(
+    private entryName: string,
     private formBuilder: FormBuilder,
     private ezValidationMessageService: EzValidationMessageService
   ) {}
@@ -81,35 +85,105 @@ export class EzFormGroupBuilder implements IEzFormGroupBuilder {
     };
 
     const group = this.formBuilder.group(formControls, abstractControlOptions);
+
+    formGroupOptions.statusChangesSubscribers.forEach(
+      (statusChangesSubscriber) => {
+        statusChangesSubscriber(group.statusChanges);
+      }
+    );
+
+    formGroupOptions.valueChangesSubscribers.forEach(
+      (valueChangesSubscriber) => {
+        valueChangesSubscriber(group.valueChanges);
+      }
+    );
+
+    group.statusChanges.subscribe((statusChange: FormStatus) => {
+      if (statusChange === "INVALID" && (group.touched || group.dirty)) {
+        formGroupOptions.validatorOptions.forEach((validatorOption) => {
+          validatorOption.errorNames.forEach((errorName) => {
+            if (group.hasError(errorName)) {
+              this.ezValidationMessageService.raiseMessage({
+                forEntry: this.entryName,
+                errorName: errorName,
+                validationMessage: {
+                  message: validatorOption.message,
+                  componentType: validatorOption.componentType,
+                },
+              });
+            }
+          });
+        });
+      }
+
+      formGroupOptions.validatorOptions.forEach((validatorOption) => {
+        validatorOption.errorNames.forEach((errorName) => {
+          if (!group.hasError(errorName)) {
+            this.ezValidationMessageService.unraiseMessage({
+              forEntry: this.entryName,
+              errorName: errorName,
+              validationMessage: null,
+            });
+          }
+        });
+      });
+    });
+
     return group;
   }
 }
 
 export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   private updateOn: UpdateOn = "change";
+  private valueChangesSubscribers: ((
+    valueChanges$: Observable<any>
+  ) => void)[] = [];
+  private statusChangesSubscribers: ((
+    statusChanges$: Observable<FormStatus>
+  ) => void)[] = [];
+  private formValidationBuilders: IEzFormValidationBuilder<IEzFormGroupBuilder>[] = [];
 
-  constructor(private parentBuilder: IEzFormGroupBuilder) {}
+  constructor(
+    private entryName: string,
+    private parentBuilder: IEzFormGroupBuilder,
+    private ezValidationMessageService: EzValidationMessageService
+  ) {}
 
   hasValidator(
-    valdator: ValidatorFn,
+    validator: ValidatorFn,
     errorsRaised: string[]
   ): IEzFormValidationBuilder<IEzFormGroupBuilder> {
-    throw new Error("Method not implemented.");
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupBuilder>(
+      this.entryName,
+      errorsRaised,
+      false,
+      [validator],
+      this.ezValidationMessageService,
+      this.parentBuilder
+    );
+
+    this.formValidationBuilders.push(formValidatorBuilder);
+
+    return formValidatorBuilder;
   }
 
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
   ): IEzFormEntryOptionBuilder<IEzFormGroupBuilder> {
-    throw new Error("Method not implemented.");
+    this.valueChangesSubscribers.push(valueChangesSubscriber);
+    return this;
   }
 
   listensForStatusChanges(
-    valueChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
+    statusChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
   ): IEzFormEntryOptionBuilder<IEzFormGroupBuilder> {
-    throw new Error("Method not implemented.");
+    this.statusChangesSubscribers.push(statusChangesSubscriber);
+    return this;
   }
 
-  updatesOn(updateOn: UpdateOn): IEzFormGroupOptionBuilder {
+  updatesOn(
+    updateOn: UpdateOn
+  ): IEzFormEntryOptionBuilder<IEzFormGroupBuilder> {
     this.updateOn = updateOn;
     return this;
   }

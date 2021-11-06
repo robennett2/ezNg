@@ -1,6 +1,8 @@
 import { ValidatorFn } from "@angular/forms";
 import { Observable } from "rxjs";
 import { FormStatus } from "../types/form/form-status.type";
+import { UpdateOn } from "../types/form/update-on.type";
+import { IEzFormGroupOptionBuilder } from "./group/ez-form-group-builder.interface";
 import { IEzFormValidationBuilder } from "./validation/ez-form-validation-builder.interface";
 
 export interface IEzFormEntryOptionBuilder<TParentBuilder> {
@@ -14,4 +16,5 @@ export interface IEzFormEntryOptionBuilder<TParentBuilder> {
   listensForStatusChanges(
     valueChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
   ): IEzFormEntryOptionBuilder<TParentBuilder>;
+  updatesOn(updateOn: UpdateOn): IEzFormEntryOptionBuilder<TParentBuilder>;
 }
