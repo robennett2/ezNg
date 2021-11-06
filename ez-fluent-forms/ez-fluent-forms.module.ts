@@ -1,9 +1,17 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule } from "@angular/forms";
+import { EzValidationMessageComponent } from "./components/ez-validation-message/ez-validation-message.component";
+import { EzValidationMessageHostComponent } from "src/external/ezNg/ez-fluent-forms/components/ez-validation-message-host/ez-validation-message-host.component";
+import { EzValdiationMessageHostDirective } from "./directives/ez-valdiation-message-host.directive";
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    EzValidationMessageComponent,
+    EzValidationMessageHostComponent,
+    EzValdiationMessageHostDirective,
+  ],
   imports: [CommonModule, ReactiveFormsModule],
+  exports: [EzValidationMessageComponent],
 })
 export class EzFluentFormsModule {}

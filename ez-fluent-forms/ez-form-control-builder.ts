@@ -1,8 +1,8 @@
 import { FormBuilder, FormControl } from "@angular/forms";
 import EzFormControlOptionsBuilder from "./ez-form-control-options-builder";
 import EzFormGroupBuilder from "./ez-form-group-builder";
-import { IFormControlBuilder } from "./interfaces/form-control-builder.interface";
-import { IEzFormControlOptionBuilder } from "./interfaces/ez-form-control-option-builder.interface";
+import { IEzFormControlOptionBuilder } from "./interfaces/builders/ez-form-control-option-builder.interface";
+import { IFormControlBuilder } from "./interfaces/builders/form-control-builder.interface";
 
 export default class EzFormControlBuilder<TValue>
   implements IFormControlBuilder {

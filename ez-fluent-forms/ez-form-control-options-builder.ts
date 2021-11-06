@@ -1,6 +1,6 @@
 import EzOptionsBuilderBase from "./base/ez-options-builder-base";
 import EzFormGroupBuilder from "./ez-form-group-builder";
-import { IEzFormControlOptionBuilder } from "./interfaces/ez-form-control-option-builder.interface";
+import { IEzFormControlOptionBuilder } from "./interfaces/builders/ez-form-control-option-builder.interface";
 
 export default class EzFormControlOptionsBuilder<
   TValue

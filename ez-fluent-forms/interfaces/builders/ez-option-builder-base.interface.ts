@@ -1,7 +1,7 @@
 import { ValidatorFn, AsyncValidatorFn } from "@angular/forms";
 import { Observable } from "rxjs";
-import { FormStatus } from "../types/form-status.type";
-import { UpdateOn } from "../types/update-on.type";
+import { FormStatus } from "../../types/form-status.type";
+import { UpdateOn } from "../../types/update-on.type";
 
 export interface IEzOptionBuilderBase<
   TOptionBuilder,

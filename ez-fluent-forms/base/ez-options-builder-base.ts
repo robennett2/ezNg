@@ -4,7 +4,7 @@ import {
   AbstractControlOptions,
 } from "@angular/forms";
 import { Observable } from "rxjs";
-import { IEzOptionBuilderBase } from "../interfaces/ez-option-builder-base.interface";
+import { IEzOptionBuilderBase } from "../interfaces/builders/ez-option-builder-base.interface";
 import { FormStatus } from "../types/form-status.type";
 import { UpdateOn } from "../types/update-on.type";
 
