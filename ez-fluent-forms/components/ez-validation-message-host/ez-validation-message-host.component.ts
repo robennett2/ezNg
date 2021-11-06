@@ -16,7 +16,7 @@ import { IEzValidationMessage } from "../../types/ez-validation-message.interfac
   styleUrls: ["./ez-validation-message-host.component.scss"],
 })
 export class EzValidationMessageHostComponent implements OnInit {
-  @Input() validationErrorOptions: IEzValidationMessage | null = null;
+  @Input() validationMessage: IEzValidationMessage | null = null;
   @ViewChild(EzValdiationMessageHostDirective, { static: true })
   validationMessageHost!: EzValdiationMessageHostDirective;
 
@@ -31,15 +31,12 @@ export class EzValidationMessageHostComponent implements OnInit {
   }
 
   private loadHostedComponent() {
-    if (
-      !this.validationErrorOptions ||
-      !this.validationErrorOptions.componentType
-    ) {
+    if (!this.validationMessage || !this.validationMessage.componentType) {
       return;
     }
 
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(
-      this.validationErrorOptions.componentType
+      this.validationMessage.componentType
     );
 
     const viewContainerRef = this.validationMessageHost.viewContainerRef;
@@ -49,6 +46,6 @@ export class EzValidationMessageHostComponent implements OnInit {
       componentFactory
     );
 
-    (componentRef.instance as IEzValidationMessageComponent).validationMessage = this.validationErrorOptions;
+    (componentRef.instance as IEzValidationMessageComponent).validationMessage = this.validationMessage;
   }
 }

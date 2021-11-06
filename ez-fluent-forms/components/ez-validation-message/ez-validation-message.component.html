@@ -1,3 +1,3 @@
-<div *ngFor="let errorMessage of errorMessages">
-  <ez-validation-message-host [validationErrorOptions]="errorMessage"></ez-validation-message-host>
+<div *ngFor="let validationMessage of validationMessages">
+  <ez-validation-message-host [validationMessage]="validationMessage"></ez-validation-message-host>
 </div>

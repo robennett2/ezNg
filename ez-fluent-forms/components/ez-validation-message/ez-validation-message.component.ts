@@ -5,14 +5,14 @@ import { EzValidationMessageService } from "../../services/ez-validation-message
 import { IEzValidationMessage } from "../../types/ez-validation-message.interface";
 
 @Component({
-  selector: "app-ez-validation-message",
+  selector: "ez-validation-message",
   templateUrl: "./ez-validation-message.component.html",
   styleUrls: ["./ez-validation-message.component.scss"],
 })
 export class EzValidationMessageComponent implements OnInit, OnDestroy {
   @Input("forControl") formControlName!: string;
   private onDestroyedSubject = new Subject<void>();
-  errorMessages: IEzValidationMessage[] = [];
+  validationMessages: IEzValidationMessage[] = [];
 
   constructor(private ezValidationMessageService: EzValidationMessageService) {}
 
@@ -21,7 +21,7 @@ export class EzValidationMessageComponent implements OnInit, OnDestroy {
       .registerEzValidationMessageComponentForEntry(this.formControlName)
       .pipe(takeUntil(this.onDestroyedSubject))
       .subscribe((errorMessages: IEzValidationMessage[]) => {
-        this.errorMessages = errorMessages;
+        this.validationMessages = errorMessages;
       });
   }
 
