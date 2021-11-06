@@ -7,11 +7,8 @@ import {
   ViewChild,
 } from "@angular/core";
 import { EzValdiationMessageHostDirective } from "src/external/ezNg/ez-fluent-forms/directives/ez-valdiation-message-host.directive";
-import { IEzValidationErrorOptions } from "../../ez-form-validation-builder";
-import { IEzValidationError } from "../../interfaces/validatonErrors/ez-validation-error.interface";
-import { IEzValidationErrorComponent } from "../../interfaces/validatonErrors/ez-validaton-error-component.interface";
-import { IEzValidationMessageComponent } from "../../new/components/ez-validation-message-component.interface";
-import { IEzValidationMessage } from "../../new/types/ez-validation-message.interface";
+import { IEzValidationMessageComponent } from "../../types/ez-validation-message-component.interface";
+import { IEzValidationMessage } from "../../types/ez-validation-message.interface";
 
 @Component({
   selector: "ez-validation-message-host",

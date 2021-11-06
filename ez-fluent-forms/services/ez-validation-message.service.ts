@@ -1,67 +1,105 @@
 import { Injectable } from "@angular/core";
-import { FormGroup } from "@angular/forms";
-import { Observable, ReplaySubject, Subject } from "rxjs";
-import { filter } from "rxjs/operators";
-import { EzValidationMessageComponent } from "../components/ez-validation-message/ez-validation-message.component";
-import { IEzValidationErrorOptions } from "../ez-form-validation-builder";
-import { IEzValidationError } from "../interfaces/validatonErrors/ez-validation-error.interface";
-import { FormStatus } from "../new/types/form/form-status.type";
+import { BehaviorSubject, Observable, of } from "rxjs";
+import { map, take } from "rxjs/operators";
+import { IEzValidationMessage } from "../types/ez-validation-message.interface";
+import { IEzValidationOptions } from "../types/options/ez-validation-options.interface";
+
+export const ValidatorOptionsAlreadyRegisteredForFormEntryError = (
+  entryName: string
+) =>
+  new Error(
+    `Validator options have already been registered for the form entry: ${entryName}`
+  );
+
+export interface IEzRaisedValidationMessage {
+  validationMessage: IEzValidationMessage | null;
+  forEntry: string;
+  errorName: string;
+}
 
 @Injectable({
   providedIn: "root",
 })
 export class EzValidationMessageService {
-  private controlToMessageMap: {
-    [formControlName: string]: EzValidationMessageComponent;
+  private formEntryToValidationOptionsMap: {
+    [entryName: string]: IEzValidationOptions;
   } = {};
-  private errorToErrorOptions: {
-    [error: string]: IEzValidationErrorOptions;
-  } = {};
-  private formGroups: FormGroup[] = [];
 
-  registerMessageComponentForFormAndControl(
-    component: EzValidationMessageComponent,
-    formGroup: FormGroup,
-    formControlName: string
-  ) {
-    this.formGroups.push(formGroup);
-    this.controlToMessageMap[formControlName] = component;
+  private validationMessagesSubject = new BehaviorSubject<
+    IEzRaisedValidationMessage[]
+  >([]);
 
-    formGroup.controls[formControlName].statusChanges
-      .pipe(filter((status: FormStatus) => status === "INVALID"))
-      .subscribe(() => {
-        const errors: string[] = [];
-        for (const controlName in this.controlToMessageMap) {
-          if (this.controlToMessageMap.hasOwnProperty(controlName)) {
-            const control = formGroup.get(controlName);
-            if (
-              control &&
-              control.errors &&
-              (control.touched || control.dirty) &&
-              !control.valid
-            ) {
-              for (const errorName in control.errors) {
-                if (control.errors.hasOwnProperty(errorName))
-                  errors.push(errorName);
-              }
-            }
-          }
-        }
-
-        const errorOptions: IEzValidationErrorOptions[] = [];
-        errors.forEach((error) => {
-          if (this.errorToErrorOptions.hasOwnProperty(error))
-            errorOptions.push(this.errorToErrorOptions[error]);
-        });
-
-        this.validationErrorOptionsSubject.next(errorOptions);
-      });
+  private getValidationOptionsForFormEntry(
+    entryName: string
+  ): IEzValidationOptions | null {
+    return this.formEntryToValidationOptionsMap[entryName] ?? null;
   }
 
-  private validationErrorOptionsSubject = new ReplaySubject<
-    IEzValidationErrorOptions[]
-  >();
-  get validationErrors$(): Observable<IEzValidationErrorOptions[]> {
-    return this.validationErrorOptionsSubject.asObservable();
+  raiseMessage(raisedMessage: IEzRaisedValidationMessage) {
+    this.validationMessagesSubject.pipe(take(1)).subscribe((raisedMessages) => {
+      this.validationMessagesSubject.next([...raisedMessages, raisedMessage]);
+    });
+  }
+
+  unraiseMessage(raisedMessageToRemove: IEzRaisedValidationMessage) {
+    this.validationMessagesSubject.pipe(take(1)).subscribe((raisedMessages) => {
+      do {
+        var index = raisedMessages.findIndex(
+          (currentlyRaisedMessage) =>
+            currentlyRaisedMessage.forEntry ===
+              raisedMessageToRemove.forEntry &&
+            currentlyRaisedMessage.errorName === raisedMessageToRemove.errorName
+        );
+
+        if (index >= 0) raisedMessages.splice(index, 1);
+      } while (index >= 0);
+
+      this.validationMessagesSubject.next([...raisedMessages]);
+    });
+  }
+
+  registerValidatorConfiguration(configuration: IEzValidationOptions) {
+    if (
+      this.formEntryToValidationOptionsMap.hasOwnProperty(
+        configuration.entryName
+      )
+    ) {
+      throw ValidatorOptionsAlreadyRegisteredForFormEntryError(
+        configuration.entryName
+      );
+    }
+
+    this.formEntryToValidationOptionsMap[
+      configuration.entryName
+    ] = configuration;
+  }
+
+  registerEzValidationMessageComponentForEntry(
+    formControlName: string
+  ): Observable<IEzValidationMessage[]> {
+    const validationOptions = this.getValidationOptionsForFormEntry(
+      formControlName
+    );
+
+    if (!validationOptions) {
+      return of([]);
+    }
+
+    return this.validationMessagesSubject.asObservable().pipe(
+      map((raisedMessages) =>
+        raisedMessages.filter(
+          (raisedMessage) =>
+            raisedMessage.forEntry === validationOptions.entryName &&
+            validationOptions.errorNames.includes(raisedMessage.errorName) &&
+            raisedMessage.validationMessage
+        )
+      ),
+      map((raisedMessages) =>
+        raisedMessages.map(
+          (raisedMessage) =>
+            raisedMessage.validationMessage as IEzValidationMessage
+        )
+      )
+    );
   }
 }
