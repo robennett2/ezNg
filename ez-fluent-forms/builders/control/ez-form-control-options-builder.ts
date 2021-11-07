@@ -4,6 +4,7 @@ import { EzValidationMessageService } from "../../services/ez-validation-message
 import { FormStatus } from "../../types/form/form-status.type";
 import { UpdateOn } from "../../types/form/update-on.type";
 import { IEzFormControlOptions } from "../../types/options/ez-form-control-options.interface";
+import { EzFormEntryOptionsBuilder } from "../ez-form-entry-options-builder";
 import { IEzFormEntryOptionBuilder } from "../ez-form-entry-options-builder.interface";
 import { EzFormValidationBuilder } from "../validation/ez-form-validation-builder";
 import {
@@ -19,125 +20,90 @@ import { IEzFormControlOptionBuilder } from "./ez-form-control-options-builder.i
 export class EzFormControlOptionsBuilder
   implements IEzFormControlOptionBuilder {
   private initialValue?: any;
-  private valueChangesSubscribers: ((
-    valueChanges$: Observable<any>
-  ) => void)[] = [];
-  private statusChangesSubscribers: ((
-    statusChanges$: Observable<FormStatus>
-  ) => void)[] = [];
-  private updateOn: UpdateOn = "change";
-  private modelMappers: ((value: any) => any)[] = [];
+  private ezFormEntryOptionBuilder: EzFormEntryOptionsBuilder<IEzFormControlClientBuilder>;
 
   constructor(
-    private entryName: string,
-    private ezValidationMessageService: EzValidationMessageService,
+    entryName: string,
+    ezValidationMessageService: EzValidationMessageService,
     private parentBuilder: IEzFormControlBuilder
-  ) {}
+  ) {
+    this.ezFormEntryOptionBuilder = new EzFormEntryOptionsBuilder(
+      entryName,
+      this.parentBuilder,
+      ezValidationMessageService
+    );
+  }
 
   private formValidationBuilders: IEzFormValidationBuilder<IEzFormControlClientBuilder>[] = [];
 
-  updatesOn(
-    updateOn: UpdateOn
-  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
-    this.updateOn = updateOn;
-    return this;
-  }
-
   hasValidator(
-    validator: ValidatorFn,
+    valdator: ValidatorFn,
     errorsRaised: string[]
-  ): IEzFormValidationClientBuilder<IEzFormControlBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlBuilder>(
-      this.entryName,
-      errorsRaised,
-      false,
-      [validator],
-      this.ezValidationMessageService,
-      this.parentBuilder
-    );
-
-    this.formValidationBuilders.push(formValidatorBuilder);
-
-    return formValidatorBuilder;
+  ): IEzFormValidationClientBuilder<IEzFormControlClientBuilder> {
+    return this.ezFormEntryOptionBuilder.hasValidator(valdator, errorsRaised);
   }
 
   hasValidators(
-    validators: ValidatorFn[],
+    valdators: ValidatorFn[],
     errorsRaised: string[]
   ): IEzFormValidationClientBuilder<IEzFormControlClientBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlClientBuilder>(
-      this.entryName,
-      errorsRaised,
-      false,
-      validators,
-      this.ezValidationMessageService,
-      this.parentBuilder
-    );
-
-    this.formValidationBuilders.push(formValidatorBuilder);
-
-    return formValidatorBuilder;
+    return this.ezFormEntryOptionBuilder.hasValidators(valdators, errorsRaised);
   }
 
   hasAsyncValidator(
-    validator: AsyncValidatorFn,
+    valdator: AsyncValidatorFn,
     errorsRaised: string[]
   ): IEzFormValidationClientBuilder<IEzFormControlClientBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlClientBuilder>(
-      this.entryName,
-      errorsRaised,
-      true,
-      [validator],
-      this.ezValidationMessageService,
-      this.parentBuilder
+    return this.ezFormEntryOptionBuilder.hasAsyncValidator(
+      valdator,
+      errorsRaised
     );
-
-    this.formValidationBuilders.push(formValidatorBuilder);
-
-    return formValidatorBuilder;
   }
 
   hasAsyncValidators(
-    validators: AsyncValidatorFn[],
+    valdators: AsyncValidatorFn[],
     errorsRaised: string[]
   ): IEzFormValidationClientBuilder<IEzFormControlClientBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlClientBuilder>(
-      this.entryName,
-      errorsRaised,
-      true,
-      validators,
-      this.ezValidationMessageService,
-      this.parentBuilder
+    return this.ezFormEntryOptionBuilder.hasAsyncValidators(
+      valdators,
+      errorsRaised
     );
-
-    this.formValidationBuilders.push(formValidatorBuilder);
-
-    return formValidatorBuilder;
-  }
-
-  hasInitialValue(value: any): IEzFormControlOptionBuilder {
-    this.initialValue = value;
-    return this;
   }
 
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
   ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
-    this.valueChangesSubscribers.push(valueChangesSubscriber);
+    this.ezFormEntryOptionBuilder.listensForValueChanges(
+      valueChangesSubscriber
+    );
     return this;
   }
 
   listensForStatusChanges(
     statusChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
   ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
-    this.statusChangesSubscribers.push(statusChangesSubscriber);
+    this.ezFormEntryOptionBuilder.listensForValueChanges(
+      statusChangesSubscriber
+    );
+    return this;
+  }
+
+  updatesOn(
+    updateOn: UpdateOn
+  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
+    this.ezFormEntryOptionBuilder.updatesOn(updateOn);
     return this;
   }
 
   mapsToModel<TModel>(
     modelMapper: (value: any) => TModel
   ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
-    this.modelMappers.push(modelMapper);
+    this.ezFormEntryOptionBuilder.mapsToModel(modelMapper);
+    return this;
+  }
+
+  hasInitialValue(value: any): IEzFormControlOptionBuilder {
+    this.initialValue = value;
     return this;
   }
 
@@ -146,18 +112,16 @@ export class EzFormControlOptionsBuilder
   }
 
   build(): IEzFormControlOptions<any> {
-    const controlValidationOptions = this.formValidationBuilders.map(
-      (formValidationBuilder) => formValidationBuilder.build()
-    );
+    const formEntryOptions = this.ezFormEntryOptionBuilder.build();
 
     return {
-      entryName: this.entryName,
       initialValue: this.initialValue,
-      updateOn: this.updateOn,
-      validatorOptions: controlValidationOptions,
-      valueChangesSubscribers: this.valueChangesSubscribers,
-      statusChangesSubscribers: this.statusChangesSubscribers,
-      modelMappers: this.modelMappers,
+      entryName: formEntryOptions.entryName,
+      updateOn: formEntryOptions.updateOn,
+      modelMappers: formEntryOptions.modelMappers,
+      validatorOptions: formEntryOptions.validatorOptions,
+      statusChangesSubscribers: formEntryOptions.statusChangesSubscribers,
+      valueChangesSubscribers: formEntryOptions.valueChangesSubscribers,
     };
   }
 }
