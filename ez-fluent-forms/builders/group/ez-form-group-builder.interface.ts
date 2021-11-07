@@ -4,9 +4,11 @@ import {
   IEzBuildProvider,
   IEzOptionsProvider,
 } from "../ez-base-builders.interface";
-import { IEzFormGroupOptionBuilder } from "./ez-form-group-options-builder.interface";
+import { IEzFormGroupOptionClientBuilder } from "./ez-form-group-options-builder.interface";
 
-export type IEzFormGroupBuilder = IEzOptionsProvider<IEzFormGroupOptionBuilder> &
-  IEzBuildProvider<FormGroup> & {
-    withControl(entryName: string): IEzFormControlBuilder;
-  };
+export type IEzFormGroupBuilder = IEzFormGroupClientBuilder &
+  IEzBuildProvider<FormGroup> & {};
+
+export type IEzFormGroupClientBuilder = IEzOptionsProvider<IEzFormGroupOptionClientBuilder> & {
+  withControl(entryName: string): IEzFormControlBuilder;
+};

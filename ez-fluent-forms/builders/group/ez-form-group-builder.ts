@@ -12,7 +12,10 @@ import { EzFormControlBuilder } from "../control/ez-form-control-builder";
 import { IEzFormControlBuilder } from "../control/ez-form-control-builder.interface";
 import { IEzFormGroupBuilder } from "./ez-form-group-builder.interface";
 import { EzFormGroupOptionsBuilder } from "./ez-form-group-options-builder";
-import { IEzFormGroupOptionBuilder } from "./ez-form-group-options-builder.interface";
+import {
+  IEzFormGroupOptionBuilder,
+  IEzFormGroupOptionClientBuilder,
+} from "./ez-form-group-options-builder.interface";
 
 export class EzFormGroupBuilder implements IEzFormGroupBuilder {
   private formControlBuilders: {
@@ -30,7 +33,7 @@ export class EzFormGroupBuilder implements IEzFormGroupBuilder {
     private ezValidationMessageService: EzValidationMessageService
   ) {}
 
-  that(): IEzFormGroupOptionBuilder {
+  that(): IEzFormGroupOptionClientBuilder {
     return this.formGroupOptionsBuilder;
   }
 

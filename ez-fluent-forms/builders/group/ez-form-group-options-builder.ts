@@ -4,11 +4,13 @@ import { EzValidationMessageService } from "../../services/ez-validation-message
 import { FormStatus } from "../../types/form/form-status.type";
 import { UpdateOn } from "../../types/form/update-on.type";
 import { IEzFormGroupOptions } from "../../types/options/ez-form-group-options.interface";
-import { IEzFormEntryOptionBuilder } from "../ez-form-entry-options-builder.interface";
 import { EzFormValidationBuilder } from "../validation/ez-form-validation-builder";
 import { IEzFormValidationBuilder } from "../validation/ez-form-validation-builder.interface";
-import { IEzFormGroupBuilder } from "./ez-form-group-builder.interface";
-import { IEzFormGroupOptionBuilder } from "./ez-form-group-options-builder.interface";
+import { IEzFormGroupClientBuilder } from "./ez-form-group-builder.interface";
+import {
+  IEzFormGroupOptionBuilder,
+  IEzFormGroupOptionClientBuilder,
+} from "./ez-form-group-options-builder.interface";
 
 export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   private updateOn: UpdateOn = "change";
@@ -18,20 +20,20 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   private statusChangesSubscribers: ((
     statusChanges$: Observable<FormStatus>
   ) => void)[] = [];
-  private formValidationBuilders: IEzFormValidationBuilder<IEzFormGroupBuilder>[] = [];
+  private formValidationBuilders: IEzFormValidationBuilder<IEzFormGroupClientBuilder>[] = [];
   private modelMappers: ((value: any) => any)[] = [];
 
   constructor(
     private entryName: string,
-    private parentBuilder: IEzFormGroupBuilder,
+    private parentBuilder: IEzFormGroupClientBuilder,
     private ezValidationMessageService: EzValidationMessageService
   ) {}
 
   hasValidator(
     validator: ValidatorFn,
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormGroupBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupBuilder>(
+  ): IEzFormValidationBuilder<IEzFormGroupClientBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupClientBuilder>(
       this.entryName,
       errorsRaised,
       false,
@@ -48,8 +50,8 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   hasValidators(
     validators: ValidatorFn[],
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormGroupBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupBuilder>(
+  ): IEzFormValidationBuilder<IEzFormGroupClientBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupClientBuilder>(
       this.entryName,
       errorsRaised,
       false,
@@ -66,8 +68,8 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   hasAsyncValidator(
     validator: AsyncValidatorFn,
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormGroupBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupBuilder>(
+  ): IEzFormValidationBuilder<IEzFormGroupClientBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupClientBuilder>(
       this.entryName,
       errorsRaised,
       true,
@@ -84,8 +86,8 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   hasAsyncValidators(
     validators: AsyncValidatorFn[],
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormGroupBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupBuilder>(
+  ): IEzFormValidationBuilder<IEzFormGroupClientBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupClientBuilder>(
       this.entryName,
       errorsRaised,
       true,
@@ -101,21 +103,19 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
 
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
-  ): IEzFormEntryOptionBuilder<IEzFormGroupBuilder> {
+  ): IEzFormGroupOptionClientBuilder {
     this.valueChangesSubscribers.push(valueChangesSubscriber);
     return this;
   }
 
   listensForStatusChanges(
     statusChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
-  ): IEzFormEntryOptionBuilder<IEzFormGroupBuilder> {
+  ): IEzFormGroupOptionClientBuilder {
     this.statusChangesSubscribers.push(statusChangesSubscriber);
     return this;
   }
 
-  updatesOn(
-    updateOn: UpdateOn
-  ): IEzFormEntryOptionBuilder<IEzFormGroupBuilder> {
+  updatesOn(updateOn: UpdateOn): IEzFormGroupOptionClientBuilder {
     this.updateOn = updateOn;
     return this;
   }
@@ -123,7 +123,7 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   mapsToModel(
     modelInstance: any,
     controlPrefix?: string
-  ): IEzFormEntryOptionBuilder<IEzFormGroupBuilder> {
+  ): IEzFormGroupOptionClientBuilder {
     const callback = (formValue: any) => {
       for (const rawKey in formValue) {
         const key = controlPrefix ? rawKey.replace(controlPrefix, "") : rawKey;
@@ -142,7 +142,7 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
     return this;
   }
 
-  and(): IEzFormGroupBuilder {
+  and(): IEzFormGroupClientBuilder {
     return this.parentBuilder;
   }
 

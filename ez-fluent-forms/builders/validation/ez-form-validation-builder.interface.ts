@@ -4,10 +4,19 @@ import {
   IEzBuildProvider,
   IEzParentProvider,
 } from "../ez-base-builders.interface";
-import { IEzFormValidationOptionsBuilder } from "./ez-form-validation-options-builder.interface";
+import {
+  IEzFormValidationOptionsBuilder,
+  IEzFormValidationOptionsClientBuilder,
+} from "./ez-form-validation-options-builder.interface";
 
-export type IEzFormValidationBuilder<TParentBuilder> = IEzOptionsProvider<
-  IEzFormValidationOptionsBuilder<IEzFormValidationBuilder<TParentBuilder>>
+export type IEzFormValidationBuilder<
+  TParentBuilder
+> = IEzFormValidationClientBuilder<TParentBuilder> &
+  IEzBuildProvider<IEzValidationOptions> & {};
+
+export type IEzFormValidationClientBuilder<TParentBuilder> = IEzOptionsProvider<
+  IEzFormValidationOptionsClientBuilder<
+    IEzFormValidationClientBuilder<TParentBuilder>
+  >
 > &
-  IEzBuildProvider<IEzValidationOptions> &
   IEzParentProvider<TParentBuilder> & {};
