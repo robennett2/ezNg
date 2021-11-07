@@ -72,6 +72,10 @@ export class EzFormControlBuilder implements IEzFormControlBuilder {
       }
     );
 
+    control.valueChanges.subscribe((value: any) => {
+      formControlOptions.modelMappers.forEach((mapper) => mapper(value));
+    });
+
     control.statusChanges.subscribe((statusChange: FormStatus) => {
       if (statusChange === "INVALID" && (control.touched || control.dirty)) {
         formControlOptions.validatorOptions.forEach((validatorOption) => {
@@ -81,6 +85,7 @@ export class EzFormControlBuilder implements IEzFormControlBuilder {
                 forEntry: this.entryName,
                 errorName: errorName,
                 validationMessage: {
+                  errorNames: validatorOption.errorNames,
                   message: validatorOption.message,
                   componentType: validatorOption.componentType,
                 },

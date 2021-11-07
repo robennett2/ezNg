@@ -1,4 +1,4 @@
-import { ValidatorFn } from "@angular/forms";
+import { AsyncValidatorFn, ValidatorFn } from "@angular/forms";
 import { Observable } from "rxjs";
 import { EzValidationMessageService } from "../../services/ez-validation-message.service";
 import { FormStatus } from "../../types/form/form-status.type";
@@ -20,6 +20,7 @@ export class EzFormControlOptionsBuilder
     statusChanges$: Observable<FormStatus>
   ) => void)[] = [];
   private updateOn: UpdateOn = "change";
+  private modelMappers: ((value: any) => any)[] = [];
 
   constructor(
     private entryName: string,
@@ -54,6 +55,60 @@ export class EzFormControlOptionsBuilder
     return formValidatorBuilder;
   }
 
+  hasValidators(
+    validators: ValidatorFn[],
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<IEzFormControlBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlBuilder>(
+      this.entryName,
+      errorsRaised,
+      false,
+      validators,
+      this.ezValidationMessageService,
+      this.parentBuilder
+    );
+
+    this.formValidationBuilders.push(formValidatorBuilder);
+
+    return formValidatorBuilder;
+  }
+
+  hasAsyncValidator(
+    validator: AsyncValidatorFn,
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<IEzFormControlBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlBuilder>(
+      this.entryName,
+      errorsRaised,
+      true,
+      [validator],
+      this.ezValidationMessageService,
+      this.parentBuilder
+    );
+
+    this.formValidationBuilders.push(formValidatorBuilder);
+
+    return formValidatorBuilder;
+  }
+
+  hasAsyncValidators(
+    validators: AsyncValidatorFn[],
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<IEzFormControlBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlBuilder>(
+      this.entryName,
+      errorsRaised,
+      true,
+      validators,
+      this.ezValidationMessageService,
+      this.parentBuilder
+    );
+
+    this.formValidationBuilders.push(formValidatorBuilder);
+
+    return formValidatorBuilder;
+  }
+
   hasInitialValue(value: any): IEzFormControlOptionBuilder {
     this.initialValue = value;
     return this;
@@ -73,6 +128,13 @@ export class EzFormControlOptionsBuilder
     return this;
   }
 
+  mapsToModel<TModel>(
+    modelMapper: (value: any) => TModel
+  ): IEzFormEntryOptionBuilder<IEzFormControlBuilder> {
+    this.modelMappers.push(modelMapper);
+    return this;
+  }
+
   and(): IEzFormControlBuilder {
     return this.parentBuilder;
   }
@@ -85,10 +147,11 @@ export class EzFormControlOptionsBuilder
     return {
       entryName: this.entryName,
       initialValue: this.initialValue,
-      statusChangesSubscribers: this.statusChangesSubscribers,
+      updateOn: this.updateOn,
       validatorOptions: controlValidationOptions,
       valueChangesSubscribers: this.valueChangesSubscribers,
-      updateOn: this.updateOn,
+      statusChangesSubscribers: this.statusChangesSubscribers,
+      modelMappers: this.modelMappers,
     };
   }
 }

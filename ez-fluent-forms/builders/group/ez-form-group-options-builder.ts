@@ -1,4 +1,4 @@
-import { ValidatorFn } from "@angular/forms";
+import { AsyncValidatorFn, ValidatorFn } from "@angular/forms";
 import { Observable } from "rxjs";
 import { EzValidationMessageService } from "../../services/ez-validation-message.service";
 import { FormStatus } from "../../types/form/form-status.type";
@@ -19,6 +19,7 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
     statusChanges$: Observable<FormStatus>
   ) => void)[] = [];
   private formValidationBuilders: IEzFormValidationBuilder<IEzFormGroupBuilder>[] = [];
+  private modelMappers: ((value: any) => any)[] = [];
 
   constructor(
     private entryName: string,
@@ -35,6 +36,60 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
       errorsRaised,
       false,
       [validator],
+      this.ezValidationMessageService,
+      this.parentBuilder
+    );
+
+    this.formValidationBuilders.push(formValidatorBuilder);
+
+    return formValidatorBuilder;
+  }
+
+  hasValidators(
+    validators: ValidatorFn[],
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<IEzFormGroupBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupBuilder>(
+      this.entryName,
+      errorsRaised,
+      false,
+      validators,
+      this.ezValidationMessageService,
+      this.parentBuilder
+    );
+
+    this.formValidationBuilders.push(formValidatorBuilder);
+
+    return formValidatorBuilder;
+  }
+
+  hasAsyncValidator(
+    validator: AsyncValidatorFn,
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<IEzFormGroupBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupBuilder>(
+      this.entryName,
+      errorsRaised,
+      true,
+      [validator],
+      this.ezValidationMessageService,
+      this.parentBuilder
+    );
+
+    this.formValidationBuilders.push(formValidatorBuilder);
+
+    return formValidatorBuilder;
+  }
+
+  hasAsyncValidators(
+    validators: AsyncValidatorFn[],
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<IEzFormGroupBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupBuilder>(
+      this.entryName,
+      errorsRaised,
+      true,
+      validators,
       this.ezValidationMessageService,
       this.parentBuilder
     );
@@ -65,19 +120,44 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
     return this;
   }
 
+  mapsToModel(
+    modelInstance: any,
+    controlPrefix?: string
+  ): IEzFormEntryOptionBuilder<IEzFormGroupBuilder> {
+    const callback = (formValue: any) => {
+      for (const rawKey in formValue) {
+        const key = controlPrefix ? rawKey.replace(controlPrefix, "") : rawKey;
+
+        if (!controlPrefix || rawKey.startsWith(controlPrefix)) {
+          if (formValue.hasOwnProperty(rawKey)) {
+            if (!modelInstance.hasOwnProperty(key)) continue;
+
+            modelInstance[key] = formValue[rawKey];
+          }
+        }
+      }
+    };
+
+    this.modelMappers.push(callback);
+    return this;
+  }
+
   and(): IEzFormGroupBuilder {
     return this.parentBuilder;
   }
 
   build(): IEzFormGroupOptions {
+    const groupValidationOptions = this.formValidationBuilders.map(
+      (formValidationBuilder) => formValidationBuilder.build()
+    );
+
     return {
+      entryName: this.entryName,
       updateOn: this.updateOn,
-      controls: [],
-      entryName: "",
-      statusChangesSubscribers: [],
-      modelMappers: [],
-      validatorOptions: [],
-      valueChangesSubscribers: [],
+      modelMappers: this.modelMappers,
+      validatorOptions: groupValidationOptions,
+      statusChangesSubscribers: this.statusChangesSubscribers,
+      valueChangesSubscribers: this.valueChangesSubscribers,
     };
   }
 }

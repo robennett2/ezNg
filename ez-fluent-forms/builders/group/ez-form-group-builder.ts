@@ -91,6 +91,10 @@ export class EzFormGroupBuilder implements IEzFormGroupBuilder {
       }
     );
 
+    group.valueChanges.subscribe((value: any) => {
+      formGroupOptions.modelMappers.forEach((mapper) => mapper(value));
+    });
+
     group.statusChanges.subscribe((statusChange: FormStatus) => {
       if (statusChange === "INVALID" && (group.touched || group.dirty)) {
         formGroupOptions.validatorOptions.forEach((validatorOption) => {
@@ -100,6 +104,7 @@ export class EzFormGroupBuilder implements IEzFormGroupBuilder {
                 forEntry: this.entryName,
                 errorName: errorName,
                 validationMessage: {
+                  errorNames: validatorOption.errorNames,
                   message: validatorOption.message,
                   componentType: validatorOption.componentType,
                 },

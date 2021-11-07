@@ -1,4 +1,4 @@
-import { ValidatorFn } from "@angular/forms";
+import { AsyncValidatorFn, ValidatorFn } from "@angular/forms";
 import { Observable } from "rxjs";
 import { FormStatus } from "../types/form/form-status.type";
 import { UpdateOn } from "../types/form/update-on.type";
@@ -9,6 +9,18 @@ export interface IEzFormEntryOptionBuilder<TParentBuilder> {
     valdator: ValidatorFn,
     errorsRaised: string[]
   ): IEzFormValidationBuilder<TParentBuilder>;
+  hasValidators(
+    valdator: ValidatorFn[],
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<TParentBuilder>;
+  hasAsyncValidator(
+    valdator: AsyncValidatorFn,
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<TParentBuilder>;
+  hasAsyncValidators(
+    valdator: AsyncValidatorFn[],
+    errorsRaised: string[]
+  ): IEzFormValidationBuilder<TParentBuilder>;
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
   ): IEzFormEntryOptionBuilder<TParentBuilder>;
@@ -16,4 +28,7 @@ export interface IEzFormEntryOptionBuilder<TParentBuilder> {
     valueChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
   ): IEzFormEntryOptionBuilder<TParentBuilder>;
   updatesOn(updateOn: UpdateOn): IEzFormEntryOptionBuilder<TParentBuilder>;
+  mapsToModel<TModel>(
+    modelMapper: (value: any) => TModel
+  ): IEzFormEntryOptionBuilder<TParentBuilder>;
 }
