@@ -1,5 +1,8 @@
 import { FormGroup } from "@angular/forms";
-import { IEzFormControlBuilder } from "../control/ez-form-control-builder.interface";
+import {
+  IEzFormControlBuilder,
+  IEzFormControlClientBuilder,
+} from "../control/ez-form-control-builder.interface";
 import {
   IEzBuildProvider,
   IEzOptionsProvider,
@@ -10,5 +13,5 @@ export type IEzFormGroupBuilder = IEzFormGroupClientBuilder &
   IEzBuildProvider<FormGroup> & {};
 
 export type IEzFormGroupClientBuilder = IEzOptionsProvider<IEzFormGroupOptionClientBuilder> & {
-  withControl(entryName: string): IEzFormControlBuilder;
+  withControl(entryName: string): IEzFormControlClientBuilder;
 };

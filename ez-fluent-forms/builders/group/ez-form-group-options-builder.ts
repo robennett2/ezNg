@@ -5,7 +5,10 @@ import { FormStatus } from "../../types/form/form-status.type";
 import { UpdateOn } from "../../types/form/update-on.type";
 import { IEzFormGroupOptions } from "../../types/options/ez-form-group-options.interface";
 import { EzFormValidationBuilder } from "../validation/ez-form-validation-builder";
-import { IEzFormValidationBuilder } from "../validation/ez-form-validation-builder.interface";
+import {
+  IEzFormValidationBuilder,
+  IEzFormValidationClientBuilder,
+} from "../validation/ez-form-validation-builder.interface";
 import { IEzFormGroupClientBuilder } from "./ez-form-group-builder.interface";
 import {
   IEzFormGroupOptionBuilder,
@@ -32,7 +35,7 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   hasValidator(
     validator: ValidatorFn,
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormGroupClientBuilder> {
+  ): IEzFormValidationClientBuilder<IEzFormGroupClientBuilder> {
     const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupClientBuilder>(
       this.entryName,
       errorsRaised,
@@ -50,7 +53,7 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   hasValidators(
     validators: ValidatorFn[],
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormGroupClientBuilder> {
+  ): IEzFormValidationClientBuilder<IEzFormGroupClientBuilder> {
     const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupClientBuilder>(
       this.entryName,
       errorsRaised,
@@ -68,7 +71,7 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   hasAsyncValidator(
     validator: AsyncValidatorFn,
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormGroupClientBuilder> {
+  ): IEzFormValidationClientBuilder<IEzFormGroupClientBuilder> {
     const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupClientBuilder>(
       this.entryName,
       errorsRaised,
@@ -86,7 +89,7 @@ export class EzFormGroupOptionsBuilder implements IEzFormGroupOptionBuilder {
   hasAsyncValidators(
     validators: AsyncValidatorFn[],
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormGroupClientBuilder> {
+  ): IEzFormValidationClientBuilder<IEzFormGroupClientBuilder> {
     const formValidatorBuilder = new EzFormValidationBuilder<IEzFormGroupClientBuilder>(
       this.entryName,
       errorsRaised,

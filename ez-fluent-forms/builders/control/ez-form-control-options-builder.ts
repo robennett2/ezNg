@@ -6,8 +6,14 @@ import { UpdateOn } from "../../types/form/update-on.type";
 import { IEzFormControlOptions } from "../../types/options/ez-form-control-options.interface";
 import { IEzFormEntryOptionBuilder } from "../ez-form-entry-options-builder.interface";
 import { EzFormValidationBuilder } from "../validation/ez-form-validation-builder";
-import { IEzFormValidationBuilder } from "../validation/ez-form-validation-builder.interface";
-import { IEzFormControlBuilder } from "./ez-form-control-builder.interface";
+import {
+  IEzFormValidationBuilder,
+  IEzFormValidationClientBuilder,
+} from "../validation/ez-form-validation-builder.interface";
+import {
+  IEzFormControlBuilder,
+  IEzFormControlClientBuilder,
+} from "./ez-form-control-builder.interface";
 import { IEzFormControlOptionBuilder } from "./ez-form-control-options-builder.interface";
 
 export class EzFormControlOptionsBuilder
@@ -28,11 +34,11 @@ export class EzFormControlOptionsBuilder
     private parentBuilder: IEzFormControlBuilder
   ) {}
 
-  private formValidationBuilders: IEzFormValidationBuilder<IEzFormControlBuilder>[] = [];
+  private formValidationBuilders: IEzFormValidationBuilder<IEzFormControlClientBuilder>[] = [];
 
   updatesOn(
     updateOn: UpdateOn
-  ): IEzFormEntryOptionBuilder<IEzFormControlBuilder> {
+  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
     this.updateOn = updateOn;
     return this;
   }
@@ -40,7 +46,7 @@ export class EzFormControlOptionsBuilder
   hasValidator(
     validator: ValidatorFn,
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormControlBuilder> {
+  ): IEzFormValidationClientBuilder<IEzFormControlBuilder> {
     const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlBuilder>(
       this.entryName,
       errorsRaised,
@@ -58,8 +64,8 @@ export class EzFormControlOptionsBuilder
   hasValidators(
     validators: ValidatorFn[],
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormControlBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlBuilder>(
+  ): IEzFormValidationClientBuilder<IEzFormControlClientBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlClientBuilder>(
       this.entryName,
       errorsRaised,
       false,
@@ -76,8 +82,8 @@ export class EzFormControlOptionsBuilder
   hasAsyncValidator(
     validator: AsyncValidatorFn,
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormControlBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlBuilder>(
+  ): IEzFormValidationClientBuilder<IEzFormControlClientBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlClientBuilder>(
       this.entryName,
       errorsRaised,
       true,
@@ -94,8 +100,8 @@ export class EzFormControlOptionsBuilder
   hasAsyncValidators(
     validators: AsyncValidatorFn[],
     errorsRaised: string[]
-  ): IEzFormValidationBuilder<IEzFormControlBuilder> {
-    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlBuilder>(
+  ): IEzFormValidationClientBuilder<IEzFormControlClientBuilder> {
+    const formValidatorBuilder = new EzFormValidationBuilder<IEzFormControlClientBuilder>(
       this.entryName,
       errorsRaised,
       true,
@@ -116,21 +122,21 @@ export class EzFormControlOptionsBuilder
 
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
-  ): IEzFormEntryOptionBuilder<IEzFormControlBuilder> {
+  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
     this.valueChangesSubscribers.push(valueChangesSubscriber);
     return this;
   }
 
   listensForStatusChanges(
     statusChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
-  ): IEzFormEntryOptionBuilder<IEzFormControlBuilder> {
+  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
     this.statusChangesSubscribers.push(statusChangesSubscriber);
     return this;
   }
 
   mapsToModel<TModel>(
     modelMapper: (value: any) => TModel
-  ): IEzFormEntryOptionBuilder<IEzFormControlBuilder> {
+  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
     this.modelMappers.push(modelMapper);
     return this;
   }
