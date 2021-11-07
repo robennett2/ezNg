@@ -1,44 +1,58 @@
+import { Type } from "@angular/core";
 import { ValidatorFn, AsyncValidatorFn } from "@angular/forms";
-import { EzValidationMessageService } from "../../services/ez-validation-message.service";
 import { IEzValidationOptions } from "../../types/options/ez-validation-options.interface";
-import { EzFormValidationOptionsBuilder } from "./ez-form-validation-builder";
 import { IEzFormValidationBuilder } from "./ez-form-validation-builder.interface";
-import { IEzFormValidationOptionsBuilder } from "./ez-form-validation-options-builder.interface";
+import {
+  IEzFormValidationOptionsBuilder,
+  IEzFormValidationOptionsClientBuilder,
+} from "./ez-form-validation-options-builder.interface";
 
-export class EzFormValidationBuilder<TParentBuilder>
-  implements IEzFormValidationBuilder<TParentBuilder> {
+export class EzFormValidationOptionsBuilder<TFormValidationParentBuilder>
+  implements
+    IEzFormValidationOptionsBuilder<
+      IEzFormValidationBuilder<TFormValidationParentBuilder>
+    > {
+  private message?: string;
+  private componentType?: Type<any>;
+
   constructor(
-    entryName: string,
-    errors: string[],
-    isAsync: boolean,
-    validatorFns: ValidatorFn[] | AsyncValidatorFn[],
-    private ezValidationMessageService: EzValidationMessageService,
-    private parentBuilder: TParentBuilder
-  ) {
-    this.formValidationOptionsBuilder = new EzFormValidationOptionsBuilder(
-      entryName,
-      errors,
-      isAsync,
-      validatorFns,
-      this
-    );
-  }
+    private entryName: string,
+    private errors: string[],
+    private isAsync: boolean,
+    private validatorFns: ValidatorFn[] | AsyncValidatorFn[],
+    private parentBuilder: IEzFormValidationBuilder<TFormValidationParentBuilder>
+  ) {}
 
-  private formValidationOptionsBuilder: EzFormValidationOptionsBuilder<TParentBuilder>;
-
-  that(): IEzFormValidationOptionsBuilder<
-    IEzFormValidationBuilder<TParentBuilder>
-  > {
-    return this.formValidationOptionsBuilder;
-  }
-
-  and(): TParentBuilder {
+  and(): IEzFormValidationBuilder<TFormValidationParentBuilder> {
     return this.parentBuilder;
   }
 
   build(): IEzValidationOptions {
-    const config = this.formValidationOptionsBuilder.build();
-    this.ezValidationMessageService.registerValidatorConfiguration(config);
-    return config;
+    return {
+      message: this.message,
+      componentType: this.componentType,
+      entryName: this.entryName,
+      errorNames: this.errors,
+      isAsync: this.isAsync,
+      validatorFns: this.validatorFns,
+    };
+  }
+
+  showsMessage(
+    message: string
+  ): IEzFormValidationOptionsClientBuilder<
+    IEzFormValidationBuilder<TFormValidationParentBuilder>
+  > {
+    this.message = message;
+    return this;
+  }
+
+  usesComponent(
+    componentType: Type<any>
+  ): IEzFormValidationOptionsClientBuilder<
+    IEzFormValidationBuilder<TFormValidationParentBuilder>
+  > {
+    this.componentType = componentType;
+    return this;
   }
 }

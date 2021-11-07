@@ -7,12 +7,16 @@ import {
 
 export type IEzFormValidationOptionsBuilder<
   TParentBuilder
-> = IEzParentProvider<TParentBuilder> &
-  IEzBuildProvider<IEzValidationOptions> & {
-    showsMessage(
-      message: string
-    ): IEzFormValidationOptionsBuilder<TParentBuilder>;
-    usesComponent(
-      componentType: Type<any>
-    ): IEzFormValidationOptionsBuilder<TParentBuilder>;
-  };
+> = IEzFormValidationOptionsClientBuilder<TParentBuilder> &
+  IEzBuildProvider<IEzValidationOptions> & {};
+
+export type IEzFormValidationOptionsClientBuilder<
+  TParentBuilder
+> = IEzParentProvider<TParentBuilder> & {
+  showsMessage(
+    message: string
+  ): IEzFormValidationOptionsClientBuilder<TParentBuilder>;
+  usesComponent(
+    componentType: Type<any>
+  ): IEzFormValidationOptionsClientBuilder<TParentBuilder>;
+};

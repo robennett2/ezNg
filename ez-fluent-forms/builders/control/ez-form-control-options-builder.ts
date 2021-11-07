@@ -5,8 +5,8 @@ import { FormStatus } from "../../types/form/form-status.type";
 import { UpdateOn } from "../../types/form/update-on.type";
 import { IEzFormControlOptions } from "../../types/options/ez-form-control-options.interface";
 import { IEzFormEntryOptionBuilder } from "../ez-form-entry-options-builder.interface";
+import { EzFormValidationBuilder } from "../validation/ez-form-validation-builder";
 import { IEzFormValidationBuilder } from "../validation/ez-form-validation-builder.interface";
-import { EzFormValidationBuilder } from "../validation/ez-form-validation-options-builder";
 import { IEzFormControlBuilder } from "./ez-form-control-builder.interface";
 import { IEzFormControlOptionBuilder } from "./ez-form-control-options-builder.interface";
 
