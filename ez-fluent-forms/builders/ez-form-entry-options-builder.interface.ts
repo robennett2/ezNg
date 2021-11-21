@@ -7,11 +7,15 @@ import { IEzBuildProvider } from "./ez-base-builders.interface";
 import { IEzFormValidationClientBuilder } from "./validation/ez-form-validation-builder.interface";
 
 export type IEzFormEntryOptionBuilder<
-  TParentBuilder
+  TParentBuilder,
+  TOptionsProvider
 > = IEzBuildProvider<IEzFormEntryOptions> &
-  IEzFormEntryOptionClientBuilder<TParentBuilder> & {};
+  IEzFormEntryOptionClientBuilder<TParentBuilder, TOptionsProvider> & {};
 
-export interface IEzFormEntryOptionClientBuilder<TParentBuilder> {
+export interface IEzFormEntryOptionClientBuilder<
+  TParentBuilder,
+  TOptionsProvider
+> {
   hasValidator(
     valdator: ValidatorFn,
     errorsRaised: string[]
@@ -30,12 +34,10 @@ export interface IEzFormEntryOptionClientBuilder<TParentBuilder> {
   ): IEzFormValidationClientBuilder<TParentBuilder>;
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
-  ): IEzFormEntryOptionClientBuilder<TParentBuilder>;
+  ): TOptionsProvider;
   listensForStatusChanges(
     valueChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
-  ): IEzFormEntryOptionClientBuilder<TParentBuilder>;
-  updatesOn(updateOn: UpdateOn): IEzFormEntryOptionBuilder<TParentBuilder>;
-  mapsToModel<TModel>(
-    modelMapper: (value: any) => TModel
-  ): IEzFormEntryOptionClientBuilder<TParentBuilder>;
+  ): TOptionsProvider;
+  updatesOn(updateOn: UpdateOn): TOptionsProvider;
+  mapsToModel(modelInstance: any, controlPrefix?: string): TOptionsProvider;
 }

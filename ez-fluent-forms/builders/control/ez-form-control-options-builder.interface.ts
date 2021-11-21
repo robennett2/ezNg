@@ -9,7 +9,10 @@ import { IEzFormControlClientBuilder } from "./ez-form-control-builder.interface
 export type IEzFormControlOptionBuilder = IEzFormControlOptionClientBuilder &
   IEzBuildProvider<IEzFormControlOptions> & {};
 
-export type IEzFormControlOptionClientBuilder = IEzFormEntryOptionClientBuilder<IEzFormControlClientBuilder> &
+export type IEzFormControlOptionClientBuilder = IEzFormEntryOptionClientBuilder<
+  IEzFormControlClientBuilder,
+  IEzFormControlOptionClientBuilder
+> &
   IEzParentProvider<IEzFormControlClientBuilder> & {
-    hasInitialValue(value: any): IEzFormControlOptionBuilder;
+    hasInitialValue(value: any): IEzFormControlOptionClientBuilder;
   };

@@ -11,8 +11,8 @@ import {
   IEzFormValidationClientBuilder,
 } from "./validation/ez-form-validation-builder.interface";
 
-export class EzFormEntryOptionsBuilder<TParentBuilder>
-  implements IEzFormEntryOptionBuilder<TParentBuilder> {
+export class EzFormEntryOptionsBuilder<TParentBuilder, TOptionsProvider>
+  implements IEzFormEntryOptionBuilder<TParentBuilder, TOptionsProvider> {
   private updateOn: UpdateOn = "change";
   private valueChangesSubscribers: ((
     valueChanges$: Observable<any>
@@ -26,6 +26,7 @@ export class EzFormEntryOptionsBuilder<TParentBuilder>
   constructor(
     private entryName: string,
     private parentBuilder: TParentBuilder,
+    private optionsProvider: TOptionsProvider,
     private ezValidationMessageService: EzValidationMessageService
   ) {}
 
@@ -118,27 +119,24 @@ export class EzFormEntryOptionsBuilder<TParentBuilder>
 
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
-  ): IEzFormEntryOptionBuilder<TParentBuilder> {
+  ): TOptionsProvider {
     this.valueChangesSubscribers.push(valueChangesSubscriber);
-    return this;
+    return this.optionsProvider;
   }
 
   listensForStatusChanges(
     statusChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
-  ): IEzFormEntryOptionBuilder<TParentBuilder> {
+  ): TOptionsProvider {
     this.statusChangesSubscribers.push(statusChangesSubscriber);
-    return this;
+    return this.optionsProvider;
   }
 
-  updatesOn(updateOn: UpdateOn): IEzFormEntryOptionBuilder<TParentBuilder> {
+  updatesOn(updateOn: UpdateOn): TOptionsProvider {
     this.updateOn = updateOn;
-    return this;
+    return this.optionsProvider;
   }
 
-  mapsToModel(
-    modelInstance: any,
-    controlPrefix?: string
-  ): IEzFormEntryOptionBuilder<TParentBuilder> {
+  mapsToModel(modelInstance: any, controlPrefix?: string): TOptionsProvider {
     const callback = (formValue: any) => {
       for (const rawKey in formValue) {
         const key = controlPrefix ? rawKey.replace(controlPrefix, "") : rawKey;
@@ -154,6 +152,6 @@ export class EzFormEntryOptionsBuilder<TParentBuilder>
     };
 
     this.modelMappers.push(callback);
-    return this;
+    return this.optionsProvider;
   }
 }

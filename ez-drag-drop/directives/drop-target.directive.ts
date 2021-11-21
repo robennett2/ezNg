@@ -1,17 +1,24 @@
 import {
   Directive,
   ElementRef,
+  EventEmitter,
   HostListener,
   Input,
+  OnDestroy,
+  OnInit,
+  Output,
   Renderer2,
 } from "@angular/core";
+import { Subject } from "rxjs";
+import { filter, takeUntil } from "rxjs/operators";
+import { DraggableBase } from "../models/draggable-base";
 import { DropTargetBase } from "../models/drop-target-base";
 import { DraggingService } from "../services/dragging.service";
 
 @Directive({
   selector: "[ezDropTarget]",
 })
-export class DropTargetDirective {
+export class DropTargetDirective implements OnInit, OnDestroy {
   @Input("ezDropTarget") dropTarget!: DropTargetBase;
   // tslint:disable-next-line:no-input-rename
   @Input("ezDragOverStyle") dragOverStyles: string[] = ["ez-drag-over"];
@@ -19,14 +26,33 @@ export class DropTargetDirective {
   @Input("ezCanDropStyle") canDropStyles: string[] = ["ez-can-drop"];
   // tslint:disable-next-line:no-input-rename
   @Input("ezCanNotDropStyle") canNotDropStyles: string[] = ["ez-can-not-drop"];
+  @Output("ezRecievedDraggable")
+  recievedDraggabledEvent = new EventEmitter<DraggableBase>();
 
   private _appliedStyles: string[] = [];
+  private onDestroyedSubject!: Subject<void>;
 
   constructor(
     private elementRef: ElementRef,
     private renderer: Renderer2,
     private draggingService: DraggingService
   ) {}
+
+  ngOnInit(): void {
+    this.onDestroyedSubject = new Subject<void>();
+
+    this.draggingService.onDrop$
+      .pipe(
+        takeUntil(this.onDestroyedSubject),
+        filter((draggable) => draggable.dropTarget === this.dropTarget)
+      )
+      .subscribe((draggable) => this.recievedDraggabledEvent.emit(draggable));
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroyedSubject.next();
+    this.onDestroyedSubject.complete();
+  }
 
   @HostListener("dragover", ["$event"]) onDragOver(e: DragEvent): void {
     if (this.draggingService.activeDraggable) {

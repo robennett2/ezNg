@@ -1,12 +1,17 @@
 import {
   Directive,
   ElementRef,
+  EventEmitter,
   HostListener,
   Input,
   OnInit,
+  Output,
   Renderer2,
 } from "@angular/core";
+import { Subject } from "rxjs";
+import { filter, map, takeUntil } from "rxjs/operators";
 import { DraggableBase } from "../models/draggable-base";
+import { DropTargetBase } from "../models/drop-target-base";
 import { DraggingService } from "../services/dragging.service";
 
 @Directive({
@@ -16,7 +21,11 @@ export class DraggableDirective implements OnInit {
   @Input("ezDraggable") draggable!: DraggableBase;
   // tslint:disable-next-line:no-input-rename
   @Input("ezDraggingStyles") draggingStyles: string[] = ["ez-dragging"];
+  @Output("ezDropped")
+  droppedEvent = new EventEmitter<DropTargetBase>();
+
   private _appliedStyles: string[] = [];
+  private onDestroyedSubject!: Subject<void>;
 
   constructor(
     private elementRef: ElementRef,
@@ -63,10 +72,30 @@ export class DraggableDirective implements OnInit {
   }
 
   ngOnInit(): void {
+    this.onDestroyedSubject = new Subject<void>();
+
     this.renderer.setAttribute(
       this.elementRef.nativeElement,
       "draggable",
       "true"
     );
+
+    this.draggingService.onDrop$
+      .pipe(
+        takeUntil(this.onDestroyedSubject),
+        filter(
+          (droppedDraggable) =>
+            droppedDraggable === this.draggable && !!droppedDraggable.dropTarget
+        ),
+        map((droppedDraggable) => droppedDraggable.dropTarget)
+      )
+      .subscribe((dropTarget) =>
+        this.droppedEvent.emit(dropTarget as DropTargetBase)
+      );
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroyedSubject.next();
+    this.onDestroyedSubject.complete();
   }
 }

@@ -1,8 +1,6 @@
-import { EzValdiationMessageHostDirective } from './ez-valdiation-message-host.directive';
-
-describe('EzValdiationMessageHostDirective', () => {
-  it('should create an instance', () => {
-    const directive = new EzValdiationMessageHostDirective();
+describe("EzValdiationMessageHostDirective", () => {
+  it("should create an instance", () => {
+    const directive = null;
     expect(directive).toBeTruthy();
   });
 });

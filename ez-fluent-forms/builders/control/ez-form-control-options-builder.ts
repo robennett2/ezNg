@@ -15,12 +15,18 @@ import {
   IEzFormControlBuilder,
   IEzFormControlClientBuilder,
 } from "./ez-form-control-builder.interface";
-import { IEzFormControlOptionBuilder } from "./ez-form-control-options-builder.interface";
+import {
+  IEzFormControlOptionBuilder,
+  IEzFormControlOptionClientBuilder,
+} from "./ez-form-control-options-builder.interface";
 
 export class EzFormControlOptionsBuilder
   implements IEzFormControlOptionBuilder {
   private initialValue?: any;
-  private ezFormEntryOptionBuilder: EzFormEntryOptionsBuilder<IEzFormControlClientBuilder>;
+  private ezFormEntryOptionBuilder: EzFormEntryOptionsBuilder<
+    IEzFormControlClientBuilder,
+    IEzFormControlOptionClientBuilder
+  >;
 
   constructor(
     entryName: string,
@@ -30,6 +36,7 @@ export class EzFormControlOptionsBuilder
     this.ezFormEntryOptionBuilder = new EzFormEntryOptionsBuilder(
       entryName,
       this.parentBuilder,
+      this,
       ezValidationMessageService
     );
   }
@@ -72,34 +79,32 @@ export class EzFormControlOptionsBuilder
 
   listensForValueChanges(
     valueChangesSubscriber: (valueChanges$: Observable<any>) => void
-  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
-    this.ezFormEntryOptionBuilder.listensForValueChanges(
+  ): IEzFormControlOptionClientBuilder {
+    return this.ezFormEntryOptionBuilder.listensForValueChanges(
       valueChangesSubscriber
     );
-    return this;
   }
 
   listensForStatusChanges(
     statusChangesSubscriber: (statusChanges$: Observable<FormStatus>) => void
-  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
-    this.ezFormEntryOptionBuilder.listensForValueChanges(
+  ): IEzFormControlOptionClientBuilder {
+    return this.ezFormEntryOptionBuilder.listensForValueChanges(
       statusChangesSubscriber
     );
-    return this;
   }
 
-  updatesOn(
-    updateOn: UpdateOn
-  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
-    this.ezFormEntryOptionBuilder.updatesOn(updateOn);
-    return this;
+  updatesOn(updateOn: UpdateOn): IEzFormControlOptionClientBuilder {
+    return this.ezFormEntryOptionBuilder.updatesOn(updateOn);
   }
 
   mapsToModel<TModel>(
-    modelMapper: (value: any) => TModel
-  ): IEzFormEntryOptionBuilder<IEzFormControlClientBuilder> {
-    this.ezFormEntryOptionBuilder.mapsToModel(modelMapper);
-    return this;
+    modelMapper: (value: any) => TModel,
+    controlPrefix?: string
+  ): IEzFormControlOptionClientBuilder {
+    return this.ezFormEntryOptionBuilder.mapsToModel(
+      modelMapper,
+      controlPrefix
+    );
   }
 
   hasInitialValue(value: any): IEzFormControlOptionBuilder {
